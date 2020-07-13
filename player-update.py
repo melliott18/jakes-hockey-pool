@@ -1,7 +1,10 @@
-""" player_point_events.py
-	Pulls stats for goals and assists during NHL playoff games from the NHL
-	stats API and puts them in an SQLite database in the form of playoff point
-	events.
+__author__ = "Mitchell Elliott"
+__credits__ = "Mitchell Elliott and Jason Cockroft"
+__status__ = "Development"
+
+""" player-update.py
+	Pulls NHL playoff game stats for players from the NHL
+	stats API and puts them in the players database.
 """
 
 import requests
@@ -9,7 +12,7 @@ import sqlite3
 import time
 
 def db_connect():
-	return sqlite3.connect('PlayerPointEntryDB.db')
+	return sqlite3.connect('playerDB.db')
 
 def db_drop_table():
 	db = db_connect()
