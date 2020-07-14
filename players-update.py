@@ -51,8 +51,8 @@ cursor = db.cursor()
 for team in teams['teams']:
 	team_id = team['id']
 	team_name = team['name']
-
 	roster = requests.get("{}/teams/{}/roster".format(BASE, team_id)).json()
+
 	if "roster" in roster:
 		for player in roster['roster']:
 			player_id = player['person']['id']
@@ -68,7 +68,7 @@ for team in teams['teams']:
 					shutouts = None
 					points = stats['stats'][0]['splits'][0]['stat']['points']
 					cursor.execute('''INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (player_id, player_name, team_id, team_name, player_type, goals, assists, wins, shutouts, points))
-				if "wins" in stats['stats'][0]['splits'][0]['stat']:
+				elif "wins" in stats['stats'][0]['splits'][0]['stat']:
 					player_type = "Goalie"
 					goals = None
 					assists = None
