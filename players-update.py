@@ -76,8 +76,8 @@ for team in teams['teams']:
 					shutouts = stats['stats'][0]['splits'][0]['stat']['shutouts']
 					points = (wins * 2) + shutouts
 					cursor.execute('''INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (player_id, player_name, team_id, team_name, player_type, goals, assists, wins, shutouts, points))
-				db.commit()
-				
+
+db.commit()			
 db.close()
 
 end = time.time()
