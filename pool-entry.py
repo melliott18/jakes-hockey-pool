@@ -18,6 +18,10 @@ def db_create_table():
 	   [pool_team_id] integer PRIMARY KEY,
 	   [pool_team_name] text,
 	   [pool_team_gm_name] text,
+	   [pool_team_gm_email] text,
+	   [pool_team_gm_pay_status] text,
+	   [pool_team_gm_name_pay_amount] text,
+	   [pool_team_gm_pay_method] text,
 	   [pool_team_points] integer
 	)'''
 	cursor.execute(sql)
