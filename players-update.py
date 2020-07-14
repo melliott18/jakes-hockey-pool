@@ -11,79 +11,72 @@ import requests
 import sqlite3
 import time
 
+BASE = "http://statsapi.web.nhl.com/api/v1"
+teams = requests.get("{}/teams".format(BASE)).json()
+
 def db_connect():
-	return sqlite3.connect('playerDB.db')
+	return sqlite3.connect('playersDB.db')
 
 def db_drop_table():
 	db = db_connect()
 	cursor = db.cursor()
-	cursor.execute("DROP TABLE IF EXISTS PLAYER_POINT_ENTRIES")
+	cursor.execute("DROP TABLE IF EXISTS players")
 	return cursor
 
 def db_create_table():
 	db = db_connect()
 	cursor = db.cursor()
-	sql ='''CREATE TABLE PLAYER_POINT_ENTRIES(
-	   [PLAYER_ID] INTEGER PRIMARY KEY,
-	   [PLAYER_NAME] TEXT,
-	   [EVENT_TYPE] TEXT,
-	   [POINT_VALUE] INTEGER
+	sql ='''CREATE TABLE players(
+	   [player_id] integer PRIMARY KEY,
+	   [player_name] text,
+	   [team_id] integer,
+	   [team_name] text,
+	   [player_type] text,
+	   [goals] integer,
+	   [assists] integer,
+	   [wins] integer,
+	   [shutouts] integer,
+	   [points] integer
 	)'''
 	cursor.execute(sql)
 	db.commit()
 
 start = time.time()
 
-BASE = "http://statsapi.web.nhl.com/api/v1"
-teams = requests.get("{}/teams".format(BASE)).json()
-teamFile = open("teams.txt", 'w')
-playerFile = open("players.txt", 'w', newline ='\n')
-
 db_drop_table()
-
 db_create_table()
-
 db = db_connect()
-
 cursor = db.cursor()
 
-playerCount = 0
-numMatchups = 16
-numGames = 0
-playerID = 0
+for team in teams['teams']:
+	team_id = team['id']
+	team_name = team['name']
 
-for playoffRound in range(1, 5):
-	numMatchups = int(numMatchups / 2)
-	for matchupNumber in range(1, numMatchups + 1):
-		for gameNumber in range(1, 8):
-			game = requests.get("{}/game/2018030{}{}{}/feed/live".format(BASE, playoffRound, matchupNumber, gameNumber)).json()
-			if "liveData" in game:
-				numGames += 1
-				for playNumber, play in enumerate(game['liveData']['plays']['allPlays']):
-					if play['result']['event'] == "Goal":
-						description = play['result']['description'].split(", ")
-						split1 = description[0].split(" (")
-						goal = split1[0]
-						split2 = description[1].split(": ")
-						split3 = split2[1].split(" (")
-						assist1 = split3[0]
-						try:
-							split4 = description[2].split(" (")
-							assist2 = split4[0]
-						except IndexError:
-							assist2 = "none"
-						eventString = str(game['gamePk']) + " " + str(playNumber) + " " + "Goal: " + goal						
-						cursor.execute('''INSERT INTO PLAYER_POINT_ENTRIES VALUES (?, ?, ?, ?)''', (playerID, goal, "Goal", 1))
-						playerID += 1
-						if assist1 != "none":
-							eventString = str(game['gamePk']) + " " + str(playNumber) + " " + "Assist: " + assist1
-							cursor.execute('''INSERT INTO PLAYER_POINT_ENTRIES VALUES (?, ?, ?, ?)''', (playerID, assist1, "Assist", 1))
-							playerID += 1
-						if assist2 != "none":	
-							eventString = str(game['gamePk']) + " " + str(playNumber) + " " + "Assist: " + assist2
-							cursor.execute('''INSERT INTO PLAYER_POINT_ENTRIES VALUES (?, ?, ?, ?)''', (playerID, assist2, "Assist", 1))
-							playerID += 1
-						db.commit()
+	roster = requests.get("{}/teams/{}/roster".format(BASE, team_id)).json()
+	if "roster" in roster:
+		for player in roster['roster']:
+			player_id = player['person']['id']
+			player_name = player['person']['fullName']
+			stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season=20182019".format(BASE, player_id)).json()
+
+			if stats['stats'][0]['splits']:
+				if "assists" in stats['stats'][0]['splits'][0]['stat']:
+					player_type = "Skater"
+					goals = stats['stats'][0]['splits'][0]['stat']['goals']
+					assists = stats['stats'][0]['splits'][0]['stat']['assists']
+					wins = None
+					shutouts = None
+					points = stats['stats'][0]['splits'][0]['stat']['points']
+					cursor.execute('''INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (player_id, player_name, team_id, team_name, player_type, goals, assists, wins, shutouts, points))
+				if "wins" in stats['stats'][0]['splits'][0]['stat']:
+					player_type = "Goalie"
+					goals = None
+					assists = None
+					wins = stats['stats'][0]['splits'][0]['stat']['wins']
+					shutouts = stats['stats'][0]['splits'][0]['stat']['shutouts']
+					points = (wins * 2) + shutouts
+					cursor.execute('''INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (player_id, player_name, team_id, team_name, player_type, goals, assists, wins, shutouts, points))
+				db.commit()
 				
 db.close()
 
