@@ -2,7 +2,7 @@ __author__ = "Mitchell Elliott"
 __credits__ = "Mitchell Elliott and Jason Cockroft"
 __status__ = "Development"
 
-""" player-update.py
+""" players-update.py
 	Pulls NHL playoff game stats for players from the NHL
 	stats API and puts them in the players database.
 """
