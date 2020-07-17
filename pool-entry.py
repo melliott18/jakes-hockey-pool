@@ -6,80 +6,58 @@ __status__ = "Development"
 	Manages the creation and insertion of pool teams into the pool database
 """
 
+import mysql.connector
 import requests
-import sqlite3
-import time
 
-def db_connect(db_name):
-	return sqlite3.connect(db_name)
+db = mysql.connector.connect(
+	host="localhost",
+	user="root",
+	password="Mitch1669224",
+	database='poolDB'
+)
 
-def db_drop_table(db_name, table_name):
-	db = db_connect(db_name)
-	cursor = db.cursor()
-	query = "DROP TABLE IF EXISTS '{}'".format(table_name)
-	cursor.execute(query)
-	db.commit()
-	db.close()
+cursor = db.cursor()
+cursor.execute("CREATE DATABASE IF NOT EXISTS poolDB")
+cursor.execute("DROP TABLE pool_teams")
+cursor.execute("DROP TABLE SuperSlug")
 
-def db_create_table(db_name, sql):
-	db = db_connect(db_name)
-	cursor = db.cursor()
-	cursor.execute(sql)
-	db.commit()
-	db.close()
-
-start = time.time()
-
-db_drop_table("poolDB.db", "pool_teams")
-sql ='''CREATE TABLE pool_teams(
-	   [pool_team_id] integer PRIMARY KEY,
-	   [pool_team_name] text,
-	   [pool_team_gm_name] text,
-	   [pool_team_gm_email] text,
-	   [pool_team_gm_pay_status] text,
-	   [pool_team_gm_pay_amount] integer,
-	   [pool_team_gm_pay_method] text,
-	   [pool_team_points] integer
+sql = '''CREATE TABLE IF NOT EXISTS pool_teams ( 
+	   pool_team_id TINYINT(1) PRIMARY KEY, 
+	   pool_team_name CHAR(25), 
+	   pool_team_gm_name CHAR(25), 
+	   pool_team_gm_email CHAR(25), 
+	   pool_team_gm_hometown CHAR(25),
+	   pool_team_gm_pay_status CHAR(10), 
+	   pool_team_gm_pay_method CHAR(25), 
+	   pool_team_gm_pay_amount TINYINT(1), 
+	   pool_team_points SMALLINT 
 	)'''
-db_create_table("poolDB.db", sql)
-db = db_connect("poolDB.db")
-cursor = db.cursor()
 
-pool_team_id = 1
-pool_team_name = "SuperSlug"
-pool_team_gm_name = "Mitchell Elliott"
-pool_team_gm_email = "email@gmail.com"
-pool_team_gm_pay_status = "Paid"
-pool_team_gm_pay_amount = 10
-pool_team_gm_pay_method = "PayPal"
-pool_team_points = 20
-
-cursor.execute("INSERT INTO pool_teams VALUES (?, ?, ?, ?, ?, ?, ?, ?)", \
-	(pool_team_id, pool_team_name, pool_team_gm_name, pool_team_gm_email, \
-		pool_team_gm_pay_status, pool_team_gm_pay_amount, \
-		pool_team_gm_pay_method, pool_team_points))
-
-db.commit()
-
-query = 'SELECT pool_team_gm_name FROM pool_teams WHERE pool_team_gm_name = ?'
-
-cursor.execute(query, (pool_team_gm_name,))
-print(cursor.fetchone())
-
-sql ='''CREATE TABLE {name}(
-	   [player_id] integer PRIMARY KEY
-	)'''.format(name=pool_team_name)
-
-db_drop_table("poolDB.db", "1")
 cursor.execute(sql)
+
+team_id = 1
+team_name = "SuperSlug"
+team_gm_name = "Mitchell Elliott"
+team_gm_email = "email@gmail.com"
+team_gm_hometown = "City Name"
+team_gm_pay_status = "Paid"
+team_gm_pay_method = "PayPal"
+team_gm_pay_amount = 10
+team_points = 200
+
+sql = "INSERT INTO pool_teams (pool_team_id, pool_team_name, pool_team_gm_name, pool_team_gm_email, pool_team_gm_hometown, pool_team_gm_pay_status, pool_team_gm_pay_method, pool_team_gm_pay_amount, pool_team_points) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+val = (team_id, team_name, team_gm_name, team_gm_email, team_gm_hometown, team_gm_pay_status, team_gm_pay_method, team_gm_pay_amount, team_points)
+cursor.execute(sql, val)
+
 db.commit()
-db.close()
-db = db_connect("poolDB.db")
-cursor = db.cursor()
+
+sql ='''CREATE TABLE IF NOT EXISTS {table_name} (
+	   player_id INT PRIMARY KEY
+	)'''.format(table_name=team_name)
+
+cursor.execute(sql)
+
 db.commit()
-db.close()
-db = db_connect("poolDB.db")
-cursor = db.cursor()
 
 BASE = "http://statsapi.web.nhl.com/api/v1"
 teams = requests.get("{}/teams".format(BASE)).json()
@@ -89,4 +67,14 @@ for player in roster['roster']:
 			player_id = player['person']['id']
 			player_name = player['person']['fullName']
 			print(player_name)
+			sql = "INSERT INTO {table_name} (player_id) VALUES(%s)".format(table_name=team_name)
+			cursor.execute(sql, (player_id,))
+			db.commit()
 
+query = 'SELECT player_id FROM SuperSlug'
+
+cursor.execute(query)
+for row in cursor:
+	print(row)     
+
+db.close()
