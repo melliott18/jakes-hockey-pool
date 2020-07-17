@@ -2,25 +2,16 @@ import mysql.connector
 import requests
 
 mydb = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  password="Mitch1669224",
-  database='poolDB'
+	host="localhost",
+	user="root",
+	password="Mitch1669224",
+	database='poolDB'
 )
 
 print(mydb)
 
 mycursor = mydb.cursor()
-
 mycursor.execute("CREATE DATABASE IF NOT EXISTS poolDB")
-
-#mycursor.execute("SHOW DATABASES")
-
-#for x in mycursor:
-#  print(x)
-
-#sql = "CREATE TABLE pool_teams (name VARCHAR(255), address VARCHAR(255))"
-
 mycursor.execute("DROP TABLE pool_teams")
 mycursor.execute("DROP TABLE SuperSlug")
 
@@ -56,28 +47,11 @@ mydb.commit()
 
 print(mycursor.rowcount, "record inserted.")
 
-#sql = """CREATE TABLE IF NOT EXISTS new (player_id INT PRIMARY KEY)"""
-
 sql ='''CREATE TABLE IF NOT EXISTS {table_name} (
 	   player_id INT PRIMARY KEY
 	)'''.format(table_name=team_name)
 
-
-
-
-"""mycursor.execute('''CREATE TABLE {tab}
-  (ID INT PRIMARY KEY     NOT NULL,
-  NAME           TEXT    NOT NULL,
-  AGE            INT     NOT NULL,
-  ADDRESS        CHAR(50),
-  SALARY         REAL);'''.format(tab=name))
-print ("Table created successfully")
-"""
-
 mycursor.execute(sql)
-
-#DECLARE @tablename AS nvarchar(10);
-#SET @tablename = 'MyTestTable';
 
 mydb.commit()
 
@@ -89,9 +63,7 @@ for player in roster['roster']:
 			player_id = player['person']['id']
 			player_name = player['person']['fullName']
 			print(player_name)
-			#sql = "INSERT INTO {table_name} ({id})".format(table_name=team_name, id=player_id)
 			sql = "INSERT INTO {table_name} (player_id) VALUES(%s)".format(table_name=team_name)
-			#sql = "INSERT INTO SuperSlug (player_id) VALUES(%s)"
 			mycursor.execute(sql, (player_id,))
 			mydb.commit()
 
