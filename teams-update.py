@@ -50,7 +50,7 @@ def db_drop_table(host, user, password, db_name, table_name):
 	return cursor
 
 def table_exists(host, user, password, db_name, table_name):
-	db = db_connect("localhost", "root", password, "teamsDB")
+	db = db_connect(host, user, password, "teamsDB")
 	sql = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{db}' AND table_name = '{table}'".format(db=db_name, table=table_name)
 	cursor.execute(sql)
 	if cursor.fetchone() is not None:
