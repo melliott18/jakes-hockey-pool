@@ -14,7 +14,7 @@ import requests
 BASE = "http://statsapi.web.nhl.com/api/v1"
 teams = requests.get("{}/teams".format(BASE)).json()
 
-def db_create(db_name, host, user, password):
+def db_create(host, user, password, db_name):
 	db = mysql.connector.connect(
 		host=host,
 		user=user,
@@ -59,7 +59,7 @@ def table_exists(host, user, password, db_name, table_name):
 		return False
 
 password = keyring.get_password("MySQL", "root")
-db_create("teamsDB", "localhost", "root", password)
+db_create("localhost", "root", password, "teams")
 sql ='''CREATE TABLE IF NOT EXISTS {table}(
 	   team_id TINYINT(1) PRIMARY KEY,
 	   team_name CHAR(25),
