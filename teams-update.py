@@ -7,6 +7,7 @@ __status__ = "Development"
 	team statuses in the teams database.
 """
 
+import keyring
 import mysql.connector
 import requests
 
@@ -25,30 +26,31 @@ def db_create(db_name, host, user, password):
 	db.commit()
 	return db
 
-def db_connect(db_name):
+def db_connect(host, user, password, db_name):
 	db = mysql.connector.connect(
-		host="localhost",
-		user="root",
-		password="Mitch1669224",
+		host=host,
+		user=user,
+		password=password,
 		database=db_name
 	)
 	return db
 
-def db_create_table(db_name, table_name, sql):
-	db = db_connect(db_name)
+def db_create_table(host, user, password, db_name, table_name, sql):
+	db = db_connect(host, user, password, db_name)
 	cursor = db.cursor()
 	cursor.execute(sql)
 	db.commit()
 
-def db_drop_table(db_name, table_name):
-	db = db_connect(db_name)
+def db_drop_table(host, user, password, db_name, table_name):
+	db = db_connect(host, user, password, db_name)
 	cursor = db.cursor()
 	sql = "DROP TABLE IF EXISTS {table}".format(table=table_name)
 	cursor.execute(sql)
 	db.commit()
 	return cursor
 
-def table_exists(db_name, table_name):
+def table_exists(host, user, password, db_name, table_name):
+	db = db_connect("localhost", "root", password, "teamsDB")
 	sql = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{db}' AND table_name = '{table}'".format(db=db_name, table=table_name)
 	cursor.execute(sql)
 	if cursor.fetchone() is not None:
@@ -56,18 +58,19 @@ def table_exists(db_name, table_name):
 	else:
 		return False
 
-db_create("teamsDB", "localhost", "root", "Mitch1669224")
+password = keyring.get_password("MySQL", "root")
+db_create("teamsDB", "localhost", "root", password)
 sql ='''CREATE TABLE IF NOT EXISTS {table}(
 	   team_id TINYINT(1) PRIMARY KEY,
 	   team_name CHAR(25),
 	   status_id TINYINT(1),
 	   status_verbose CHAR(25)
 	)'''.format(table="teams")
-db_create_table("teamsDB", "teams", sql)
-db = db_connect("teamsDB")
+db_create_table("localhost", "root", password, "teamsDB", "teams", sql)
+db = db_connect("localhost", "root", password, "teamsDB")
 cursor = db.cursor()
 
-if not table_exists("teamsDB", "teams"):
+if not table_exists("localhost", "root", password, "teamsDB", "teams"):
 	for team in teams['teams']:
 		team_id = team['id']
 		team_name = team['name']
