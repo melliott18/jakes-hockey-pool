@@ -51,6 +51,7 @@ def update_all_players():
     teams = tcursor.fetchall()
 
     BASE = "http://statsapi.web.nhl.com/api/v1"
+    year = "20182019"
 
     for team in teams:
         team_id = team[0]
@@ -67,7 +68,7 @@ def update_all_players():
                 player_id = player['person']['id']
                 player_name = player['person']['fullName']
 
-                stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season=20182019".format(BASE, player_id)).json()
+                stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season={}".format(BASE, player_id, year)).json()
 
                 if stats['stats'][0]['splits']:
                     if "assists" in stats['stats'][0]['splits'][0]['stat']:
@@ -125,6 +126,7 @@ def update_active_players():
     teams = tcursor.fetchall()
 
     BASE = "http://statsapi.web.nhl.com/api/v1"
+    year = "20182019"
 
     for team in teams:
         team_id = team[0]
@@ -137,7 +139,7 @@ def update_active_players():
                 for player in roster['roster']:
                     player_id = player['person']['id']
                     player_name = player['person']['fullName']
-                    stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season=20182019".format(BASE, player_id)).json()
+                    stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season={}".format(BASE, player_id, year)).json()
 
                     if stats['stats'][0]['splits']:
                         if "assists" in stats['stats'][0]['splits'][0]['stat']:
