@@ -3,8 +3,8 @@ __credits__ = "Mitchell Elliott and Jason Cockroft"
 __status__ = "Development"
 
 """ players-update.py
-	Pulls NHL playoff game stats for players from the NHL
-	stats API and puts them in the players database.
+    Pulls NHL playoff game stats for players from the NHL
+    stats API and puts them in the players database.
 """
 
 import jhp
