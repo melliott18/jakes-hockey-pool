@@ -13,12 +13,15 @@ import requests
 import time
 
 def update_all_players():
+    jhp.db_create("playersDB")
+    jhp.db_create("teamsDB")
     pdb = jhp.db_connect("playersDB")
     pcursor = pdb.cursor()
     tdb = jhp.db_connect("teamsDB")
     tcursor = tdb.cursor()
     jhp.db_drop_table("playersDB", "all_players")
     jhp.db_drop_table("playersDB", "active_players")
+
     sql ='''CREATE TABLE all_players(
         player_id INT PRIMARY KEY,
         player_name CHAR(25),
@@ -33,6 +36,7 @@ def update_all_players():
         status_id TINYINT(1)
     )'''
     jhp.db_create_table("playersDB", sql)
+
     sql ='''CREATE TABLE active_players(
         player_id INT PRIMARY KEY,
         player_name CHAR(25),
@@ -47,16 +51,18 @@ def update_all_players():
         status_id TINYINT(1)
     )'''
     jhp.db_create_table("playersDB", sql)
+
     tcursor.execute("SELECT * FROM teams")
     teams = tcursor.fetchall()
 
     BASE = "http://statsapi.web.nhl.com/api/v1"
     year = "20182019"
+    active = 5
 
     for team in teams:
         team_id = team[0]
         team_name = team[1]
-        if team[2] == 5:
+        if team[2] == active:
             status_id = 1
         else:
             status_id = 0
@@ -90,10 +96,10 @@ def update_all_players():
                     val = (player_id, player_name, team_id, team_name, player_type, goals, assists, wins, shutouts, points, status_id)
                     pcursor.execute(sql, val)
 
-                    if status_id:
+                    """if status_id:
                         sql = "INSERT INTO active_players (player_id, player_name, team_id, team_name, player_type, goals, assists, wins, shutouts, points, status_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                         val = (player_id, player_name, team_id, team_name, player_type, goals, assists, wins, shutouts, points, status_id)
-                        pcursor.execute(sql, val)
+                        pcursor.execute(sql, val)"""
                     pdb.commit()
     pdb.close()
     tdb.close()
@@ -127,11 +133,12 @@ def update_active_players():
 
     BASE = "http://statsapi.web.nhl.com/api/v1"
     year = "20182019"
+    active = 5
 
     for team in teams:
         team_id = team[0]
         team_name = team[1]
-        if team[2] == 5:
+        if team[2] == active:
             status_id = 1
             roster = requests.get("{}/teams/{}/roster".format(BASE, team_id)).json()
 
