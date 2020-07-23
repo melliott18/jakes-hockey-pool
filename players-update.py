@@ -107,7 +107,6 @@ def update_all_players():
     t = time.localtime()
     current_time = time.strftime("%H:%M:%S", t)
     print(current_time)
-    print(summ)
 
 def update_active_players():
     jhp.db_drop_table("playersDB", "active_players")
