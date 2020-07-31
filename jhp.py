@@ -42,6 +42,7 @@ def db_create_table(db_name, sql):
     cursor = db.cursor()
     cursor.execute(sql)
     db.commit()
+    db.close()
 
 def db_drop_table(db_name, table_name):
     global host, user, password
@@ -50,6 +51,7 @@ def db_drop_table(db_name, table_name):
     sql = "DROP TABLE IF EXISTS {table}".format(table=table_name)
     cursor.execute(sql)
     db.commit()
+    db.close()
     return cursor
 
 def table_exists(db_name, table_name):
@@ -58,6 +60,7 @@ def table_exists(db_name, table_name):
     cursor = db.cursor()
     sql = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{db}' AND table_name = '{table}'".format(db=db_name, table=table_name)
     cursor.execute(sql)
+    db.close()
     if cursor.fetchone() is not None:
         return True
     else:
@@ -70,19 +73,8 @@ def table_empty(db_name, table_name):
         cursor = db.cursor()
         sql = "SELECT COUNT(*) FROM {table}".format(db=db_name, table=table_name)
         cursor.execute(sql)
+        db.close()
         if cursor.fetchone() is None:
             return True
         else:
             return False
-
-def update_team_status(team_id, status_id):
-    db = jhp.db_connect("teamsDB")
-    cursor = db.cursor()
-    sql = "UPDATE teams SET status_id = {status} where team_id = {team}".format(status=status_id, team=team_id)
-    cursor.execute(sql)
-    db.commit()
-    db = jhp.db_connect("playersDB")
-    cursor = db.cursor()
-    sql = "UPDATE all_players SET status_id = {status} where team_id = {team}".format(status=status_id, team=team_id)
-    cursor.execute(sql)
-    db.commit()

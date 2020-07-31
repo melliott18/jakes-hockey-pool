@@ -10,6 +10,18 @@ __status__ = "Development"
 import jhp
 import requests
 
+def update_team_status(team_id, status_id):
+    db = jhp.db_connect("teamsDB")
+    cursor = db.cursor()
+    sql = "UPDATE teams SET status_id = {status} where team_id = {team}".format(status=status_id, team=team_id)
+    cursor.execute(sql)
+    db.commit()
+    db = jhp.db_connect("playersDB")
+    cursor = db.cursor()
+    sql = "UPDATE all_players SET status_id = {status} where team_id = {team}".format(status=status_id, team=team_id)
+    cursor.execute(sql)
+    db.commit()
+
 BASE = "http://statsapi.web.nhl.com/api/v1"
 teams = requests.get("{}/teams".format(BASE)).json()
 

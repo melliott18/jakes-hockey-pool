@@ -86,8 +86,10 @@ def update_all_players():
                         points = stats['stats'][0]['splits'][0]['stat']['points']
                     elif "wins" in stats['stats'][0]['splits'][0]['stat']:
                         player_type = "Goalie"
-                        goals = None
-                        assists = None
+                        if goals is None:
+                            goals = None
+                            assists = None
+
                         wins = stats['stats'][0]['splits'][0]['stat']['wins']
                         shutouts = stats['stats'][0]['splits'][0]['stat']['shutouts']
                         points = (wins * 2) + shutouts

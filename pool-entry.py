@@ -9,72 +9,78 @@ __status__ = "Development"
 import jhp
 import requests
 
-jhp.db_create("poolDB")
-db = jhp.db_connect("poolDB")
-cursor = db.cursor()
+entry_id = 0
 
-cursor.execute("CREATE DATABASE IF NOT EXISTS poolDB")
-cursor.execute("DROP TABLE pool_teams")
-cursor.execute("DROP TABLE SuperSlug")
+def create_entry_table():
+    sql = '''CREATE TABLE IF NOT EXISTS pool_entries ( 
+           entry_id SMALLINT PRIMARY KEY, 
+           team_name CHAR(25), 
+           gm_name CHAR(25), 
+           email CHAR(25), 
+           hometown CHAR(25),
+           country CHAR(3),
+           pay_status CHAR(25), 
+           pay_method CHAR(25), 
+           pay_amount TINYINT(1) 
+        )'''
 
-sql = '''CREATE TABLE IF NOT EXISTS pool_teams ( 
-       pool_team_id TINYINT(1) PRIMARY KEY, 
-       pool_team_name CHAR(25), 
-       pool_team_gm_name CHAR(25), 
-       pool_team_gm_email CHAR(25), 
-       pool_team_gm_hometown CHAR(25),
-       pool_team_gm_country CHAR(3),
-       pool_team_gm_pay_status CHAR(10), 
-       pool_team_gm_pay_method CHAR(25), 
-       pool_team_gm_pay_amount TINYINT(1), 
-       pool_team_points SMALLINT 
-    )'''
+    jhp.db_create_table("poolDB", sql)
 
-cursor.execute(sql)
+def create_stats_table():
+    sql = '''CREATE TABLE IF NOT EXISTS pool_stats ( 
+           entry_id SMALLINT PRIMARY KEY, 
+           curr_rank SMALLINT,
+           prev_rank SMALLINT,
+           team_name CHAR(25), 
+           num_act_players TINYINT(1),
+           points SMALLINT,
+           points_change SMALLINT,
+           num_duds SMALLINT,
+           prize SMALLINT
+        )'''
 
-team_id = 1
-team_name = "SuperSlug"
-team_gm_name = "Mitchell Elliott"
-team_gm_email = "email@gmail.com"
-team_gm_hometown = "City Name"
-team_gm_country = "USA"
-team_gm_pay_status = "Paid"
-team_gm_pay_method = "PayPal"
-team_gm_pay_amount = 10
-team_points = 200
+    jhp.db_create_table("poolDB", sql)
 
-sql = "INSERT INTO pool_teams (pool_team_id, pool_team_name, pool_team_gm_name, pool_team_gm_email, pool_team_gm_hometown, pool_team_gm_pay_status, pool_team_gm_pay_method, pool_team_gm_pay_amount, pool_team_points) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-val = (team_id, team_name, team_gm_name, team_gm_email, team_gm_hometown, team_gm_pay_status, team_gm_pay_method, team_gm_pay_amount, team_points)
-cursor.execute(sql, val)
+def create_roster_table(team_name):
+    db = jhp.db_connect("poolDB")
+    cursor = db.cursor()
 
-db.commit()
-
-sql ='''CREATE TABLE IF NOT EXISTS {table_name} (
+    sql ='''CREATE TABLE IF NOT EXISTS {table_name} (
        player_id INT PRIMARY KEY,
        player_name CHAR(25)
     )'''.format(table_name=team_name)
 
-cursor.execute(sql)
+    cursor.execute(sql)
+    db.commit()
+    db.close()
 
-db.commit()
+def create_pool_entry(entry_stats):
+    global entry_id
+    entry_id += 1
+    db = jhp.db_connect("poolDB")
+    cursor = db.cursor()
+    sql = "INSERT INTO pool_entries (entry_id, team_name, gm_name, email, hometown, country, pay_status, pay_method, pay_amount) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    val = (entry_id, entry_stats[0], entry_stats[1], entry_stats[2], entry_stats[3], entry_stats[4], entry_stats[5], entry_stats[6], entry_stats[7])
+    cursor.execute(sql, val)
+    sql = "INSERT INTO pool_stats (entry_id, curr_rank, prev_rank, team_name, num_act_players, points, points_change, num_duds, prize) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    val = (entry_id, 0, 0, entry_stats[0], 0, 0, 0, 0, 0)
+    cursor.execute(sql, val)
+    create_roster_table(entry_stats[0])
+    db.commit()
+    db.close()
 
-BASE = "http://statsapi.web.nhl.com/api/v1"
-teams = requests.get("{}/teams".format(BASE)).json()
-roster = requests.get("{}/teams/{}/roster".format(BASE, 28)).json()
+def update_pool_entry(team_name, column, value):
+    db = jhp.db_connect("poolDB")
+    cursor = db.cursor()
+    sql = "UPDATE pool_entries SET {col} = {val} WHERE team_name = {name}".format(col=column, val=value, name=team_name)
+    cursor.execute(sql)
+    db.commit()
+    db.close()
 
-for player in roster['roster']:
-            player_id = player['person']['id']
-            player_name = player['person']['fullName']
-            print(player_name)
-            sql = "INSERT INTO {table_name} (player_id, player_name) VALUES(%s, %s)".format(table_name=team_name)
-            val = (player_id, player_name)
-            cursor.execute(sql, val)
-            db.commit()
-
-query = 'SELECT player_id FROM SuperSlug'
-
-cursor.execute(query)
-for row in cursor:
-    print(row)     
-
-db.close()
+def update_team_stats(team_name, column, value):
+    db = jhp.db_connect("poolDB")
+    cursor = db.cursor()
+    sql = "UPDATE pool_stats SET {col} = {val} WHERE team_name = {name}".format(col=column, val=value, name=team_name)
+    cursor.execute(sql)
+    db.commit()
+    db.close()
