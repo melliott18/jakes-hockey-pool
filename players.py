@@ -179,6 +179,6 @@ def update_active_players():
     print(current_time)
 
 #while(True):	
-update_all_players()
+#update_all_players()
 #update_active_players()
     #time.sleep(600)
