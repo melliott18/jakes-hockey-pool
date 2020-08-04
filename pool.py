@@ -43,10 +43,10 @@ def create_roster_table(team_name):
     db = jhp.db_connect("poolDB")
     cursor = db.cursor()
 
-    sql ='''CREATE TABLE IF NOT EXISTS {table_name} (
+    sql ='''CREATE TABLE IF NOT EXISTS {table} (
        player_id INT PRIMARY KEY,
        player_name CHAR(25)
-    )'''.format(table_name=team_name)
+    )'''.format(table=team_name)
 
     cursor.execute(sql)
     db.commit()
@@ -75,8 +75,28 @@ def create_pool_entry(entry_stats):
         val = (0, 0, team_name, 0, 0, 0, 0, 0)
         cursor.execute(sql, val)
         create_roster_table(entry_stats[0])
-        db.commit()
+    
+    db.commit()
+    db.close()
 
+def add_player(team_name, player_id, player_name):
+    db = jhp.db_connect("poolDB")
+    cursor = db.cursor()
+    sql = "SELECT COUNT(*) FROM {table}".format(table=team_name)
+    cursor.execute(sql)
+    count = cursor.fetchone()
+
+    if count[0] < 25:
+        sql = "SELECT player_id FROM {table} WHERE player_id = '{player}'".format(table=team_name, player=player_id)
+        cursor.execute(sql)
+        fetch = cursor.fetchone()
+
+        if fetch is None:
+            sql = "INSERT INTO {table} (player_id, player_name) VALUES(%s, %s)".format(table=team_name)
+            val = (player_id, player_name)
+            cursor.execute(sql, val)
+
+    db.commit()
     db.close()
 
 def update_pool_entry(team_name, column, value):

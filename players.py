@@ -12,7 +12,10 @@ import os
 import requests
 import time
 
+year = "20192020"
+
 def update_all_players():
+    global year
     jhp.db_create("playersDB")
     jhp.db_create("teamsDB")
     pdb = jhp.db_connect("playersDB")
@@ -56,13 +59,13 @@ def update_all_players():
     teams = tcursor.fetchall()
 
     BASE = "http://statsapi.web.nhl.com/api/v1"
-    year = "20182019"
     active = 5
 
     for team in teams:
         team_id = team[0]
         team_name = team[1]
-        if team[2] == active:
+        team_status = team[2]
+        if team_status == active:
             status_id = 1
         else:
             status_id = 0
@@ -81,15 +84,13 @@ def update_all_players():
                         player_type = "Skater"
                         goals = stats['stats'][0]['splits'][0]['stat']['goals']
                         assists = stats['stats'][0]['splits'][0]['stat']['assists']
-                        wins = None
-                        shutouts = None
+                        wins = 0
+                        shutouts = 0
                         points = stats['stats'][0]['splits'][0]['stat']['points']
                     elif "wins" in stats['stats'][0]['splits'][0]['stat']:
                         player_type = "Goalie"
-                        if goals is None:
-                            goals = None
-                            assists = None
-
+                        goals = 0
+                        assists = 0
                         wins = stats['stats'][0]['splits'][0]['stat']['wins']
                         shutouts = stats['stats'][0]['splits'][0]['stat']['shutouts']
                         points = (wins * 2) + shutouts
@@ -111,6 +112,7 @@ def update_all_players():
     print(current_time)
 
 def update_active_players():
+    global year
     jhp.db_drop_table("playersDB", "active_players")
     sql ='''CREATE TABLE active_players(
         player_id INT PRIMARY KEY,
@@ -134,13 +136,13 @@ def update_active_players():
     teams = tcursor.fetchall()
 
     BASE = "http://statsapi.web.nhl.com/api/v1"
-    year = "20182019"
     active = 5
 
     for team in teams:
         team_id = team[0]
         team_name = team[1]
-        if team[2] == active:
+        team_status = team[2]
+        if team_status == active:
             status_id = 1
             roster = requests.get("{}/teams/{}/roster".format(BASE, team_id)).json()
 
@@ -155,13 +157,13 @@ def update_active_players():
                             player_type = "Skater"
                             goals = stats['stats'][0]['splits'][0]['stat']['goals']
                             assists = stats['stats'][0]['splits'][0]['stat']['assists']
-                            wins = None
-                            shutouts = None
+                            wins = 0
+                            shutouts = 0
                             points = stats['stats'][0]['splits'][0]['stat']['points']
                         elif "wins" in stats['stats'][0]['splits'][0]['stat']:
                             player_type = "Goalie"
-                            goals = None
-                            assists = None
+                            goals = 0
+                            assists = 0
                             wins = stats['stats'][0]['splits'][0]['stat']['wins']
                             shutouts = stats['stats'][0]['splits'][0]['stat']['shutouts']
                             points = (wins * 2) + shutouts

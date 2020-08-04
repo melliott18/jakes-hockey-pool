@@ -41,7 +41,6 @@ def insert_teams():
         for team in teams['teams']:
             team_id = team['id']
             team_name = team['name']
-
             sql = "INSERT INTO teams (team_id, team_name, status_id) VALUES (%s, %s, %s)"
             val = (team_id, team_name, 5)
             cursor.execute(sql, val)
