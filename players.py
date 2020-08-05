@@ -7,7 +7,7 @@ __status__ = "Development"
     stats API and puts them in the players database.
 """
 
-import jhp
+from jhp import *
 import os
 import requests
 import time
@@ -16,9 +16,9 @@ year = "20192020"
 
 def create_all_players_table():
     global year
-    pdb = jhp.db_connect("playersDB")
+    pdb = db_connect("playersDB")
     pcursor = pdb.cursor()
-    tdb = jhp.db_connect("teamsDB")
+    tdb = db_connect("teamsDB")
     tcursor = tdb.cursor()
     tcursor.execute("SELECT * FROM teams")
     teams = tcursor.fetchall()
@@ -40,7 +40,7 @@ def create_all_players_table():
         status_id TINYINT(1)
     )'''
 
-    jhp.db_create_table("playersDB", sql)
+    db_create_table("playersDB", sql)
 
     for team in teams:
         team_id = team[0]
@@ -85,9 +85,9 @@ def create_all_players_table():
 
 def create_active_players_table():
     global year
-    pdb = jhp.db_connect("playersDB")
+    pdb = db_connect("playersDB")
     pcursor = pdb.cursor()
-    tdb = jhp.db_connect("teamsDB")
+    tdb = db_connect("teamsDB")
     tcursor = tdb.cursor()
     tcursor.execute("SELECT * FROM teams")
     teams = tcursor.fetchall()
@@ -109,7 +109,7 @@ def create_active_players_table():
         status_id TINYINT(1)
     )'''
 
-    jhp.db_create_table("playersDB", sql)
+    db_create_table("playersDB", sql)
 
     for team in teams:
         team_id = team[0]
@@ -148,14 +148,10 @@ def create_active_players_table():
 
 def update_all_players():
     global year
-    #jhp.db_create("playersDB")
-    #jhp.db_create("teamsDB")
-    pdb = jhp.db_connect("playersDB")
+    pdb = db_connect("playersDB")
     pcursor = pdb.cursor(buffered=True)
-    tdb = jhp.db_connect("teamsDB")
+    tdb = db_connect("teamsDB")
     tcursor = tdb.cursor()
-    #jhp.db_drop_table("playersDB", "all_players")
-    #jhp.db_drop_table("playersDB", "active_players")
     tcursor.execute("SELECT * FROM teams")
     teams = tcursor.fetchall()
 
@@ -221,9 +217,9 @@ def update_all_players():
 
 def update_active_players():
     global year
-    pdb = jhp.db_connect("playersDB")
+    pdb = db_connect("playersDB")
     pcursor = pdb.cursor()
-    tdb = jhp.db_connect("teamsDB")
+    tdb = db_connect("teamsDB")
     tcursor = tdb.cursor()
     tcursor.execute("SELECT * FROM teams")
     teams = tcursor.fetchall()
@@ -290,13 +286,12 @@ def update_active_players():
 
 def optimized_update():
     global year
-    pdb = jhp.db_connect("playersDB")
+    pdb = db_connect("playersDB")
     pcursor = pdb.cursor(buffered=True)
-    tdb = jhp.db_connect("teamsDB")
+    tdb = db_connect("teamsDB")
     tcursor = tdb.cursor()
 
     BASE = "http://statsapi.web.nhl.com/api/v1"
-    active = 5
 
     schedule = requests.get("{}/schedule".format(BASE)).json()
 
@@ -366,7 +361,7 @@ def optimized_update():
     print(current_time)
 
 def get_player_stats(player_id):
-    db = jhp.db_connect("playersDB")
+    db = db_connect("playersDB")
     cursor = db.cursor()
     sql = "SELECT * FROM all_players WHERE player_id = '{id}'".format(id=player_id)
     cursor.execute(sql)

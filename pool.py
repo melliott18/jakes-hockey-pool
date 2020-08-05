@@ -6,9 +6,9 @@ __status__ = "Development"
     Manages the creation and insertion of pool teams into the pool database
 """
 
-import requests
 from jhp import *
 from players import *
+import requests
 
 def create_entry_table():
     sql = '''CREATE TABLE IF NOT EXISTS pool_entries (

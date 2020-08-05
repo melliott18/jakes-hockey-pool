@@ -6,14 +6,14 @@ __status__ = "Development"
     JHP function test file
 """
 
+from jhp import *
+from players import *
+from pool import *
+from teams import *
 import requests
-import jhp
-import players
-import pool
-import teams
 
 BASE = "http://statsapi.web.nhl.com/api/v1"
-db = jhp.db_connect("poolDB")
+db = db_connect("poolDB")
 cursor = db.cursor()
 
 team_name = "SuperSlug"
@@ -36,8 +36,8 @@ team_entry.append(team_gm_pay_status)
 team_entry.append(team_gm_pay_method)
 team_entry.append(team_gm_pay_amount)
 print(team_entry)
-pool.create_pool_entry(team_entry)
-pool.create_roster_table(team_name)
+create_pool_entry(team_entry)
+create_roster_table(team_name)
 
 teams = requests.get("{}/teams".format(BASE)).json()
 roster = requests.get("{}/teams/{}/roster".format(BASE, 28)).json()
@@ -77,8 +77,8 @@ team_entry.append(team_gm_pay_status)
 team_entry.append(team_gm_pay_method)
 team_entry.append(team_gm_pay_amount)
 print(team_entry)
-pool.create_pool_entry(team_entry)
-pool.create_roster_table(team_name)
+create_pool_entry(team_entry)
+create_roster_table(team_name)
 
 teams = requests.get("{}/teams".format(BASE)).json()
 roster = requests.get("{}/teams/{}/roster".format(BASE, 29)).json()
@@ -87,7 +87,7 @@ for player in roster['roster']:
             player_id = player['person']['id']
             player_name = player['person']['fullName']
             print(player_name)
-            pool.add_player(team_name, player_id, player_name)
+            add_player(team_name, player_id, player_name)
 
 team_name = "Test2"
 team_gm_name = "Team Name"
@@ -109,8 +109,8 @@ team_entry.append(team_gm_pay_status)
 team_entry.append(team_gm_pay_method)
 team_entry.append(team_gm_pay_amount)
 print(team_entry)
-pool.create_pool_entry(team_entry)
-pool.create_roster_table(team_name)
+create_pool_entry(team_entry)
+create_roster_table(team_name)
 
 teams = requests.get("{}/teams".format(BASE)).json()
 roster = requests.get("{}/teams/{}/roster".format(BASE, 30)).json()
@@ -119,7 +119,7 @@ for player in roster['roster']:
             player_id = player['person']['id']
             player_name = player['person']['fullName']
             print(player_name)
-            pool.add_player(team_name, player_id, player_name)
+            add_player(team_name, player_id, player_name)
 
 team_name = "Test3"
 team_gm_name = "Team Name"
@@ -141,8 +141,8 @@ team_entry.append(team_gm_pay_status)
 team_entry.append(team_gm_pay_method)
 team_entry.append(team_gm_pay_amount)
 print(team_entry)
-pool.create_pool_entry(team_entry)
-pool.create_roster_table(team_name)
+create_pool_entry(team_entry)
+create_roster_table(team_name)
 
 teams = requests.get("{}/teams".format(BASE)).json()
 roster = requests.get("{}/teams/{}/roster".format(BASE, 1)).json()
@@ -151,7 +151,7 @@ for player in roster['roster']:
             player_id = player['person']['id']
             player_name = player['person']['fullName']
             print(player_name)
-            pool.add_player(team_name, player_id, player_name)
+            add_player(team_name, player_id, player_name)
 
 team_name = "Test4"
 team_gm_name = "Team Name"
@@ -173,8 +173,8 @@ team_entry.append(team_gm_pay_status)
 team_entry.append(team_gm_pay_method)
 team_entry.append(team_gm_pay_amount)
 print(team_entry)
-pool.create_pool_entry(team_entry)
-pool.create_roster_table(team_name)
+create_pool_entry(team_entry)
+create_roster_table(team_name)
 
 teams = requests.get("{}/teams".format(BASE)).json()
 roster = requests.get("{}/teams/{}/roster".format(BASE, 12)).json()
@@ -183,7 +183,7 @@ for player in roster['roster']:
             player_id = player['person']['id']
             player_name = player['person']['fullName']
             print(player_name)
-            pool.add_player(team_name, player_id, player_name)
+            add_player(team_name, player_id, player_name)
 
-pool.update_all_team_stats()
+update_all_team_stats()
 
