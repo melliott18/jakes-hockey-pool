@@ -1,9 +1,12 @@
-import players
-import pool
-import teams
+from players import *
+from pool import *
+from teams import *
 
 def main():
-    players.update_all_players()
+    #create_active_players_table()
+    #update_all_players()
+    #update_active_players()
+    optimized_update()
 
 if __name__ == "__main__":
     main()

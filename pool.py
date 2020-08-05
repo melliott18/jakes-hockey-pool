@@ -6,8 +6,9 @@ __status__ = "Development"
     Manages the creation and insertion of pool teams into the pool database
 """
 
-import jhp
 import requests
+from jhp import *
+from players import *
 
 def create_entry_table():
     sql = '''CREATE TABLE IF NOT EXISTS pool_entries (
@@ -22,7 +23,7 @@ def create_entry_table():
         pay_amount TINYINT(1)
     )'''
 
-    jhp.db_create_table("poolDB", sql)
+    db_create_table("poolDB", sql)
 
 def create_stats_table():
     sql = '''CREATE TABLE IF NOT EXISTS pool_stats (
@@ -37,10 +38,10 @@ def create_stats_table():
         prize SMALLINT
     )'''
 
-    jhp.db_create_table("poolDB", sql)
+    db_create_table("poolDB", sql)
 
 def create_roster_table(team_name):
-    db = jhp.db_connect("poolDB")
+    db = db_connect("poolDB")
     cursor = db.cursor()
 
     sql ='''CREATE TABLE IF NOT EXISTS {table} (
@@ -53,7 +54,7 @@ def create_roster_table(team_name):
     db.close()
 
 def create_pool_entry(entry_stats):
-    db = jhp.db_connect("poolDB")
+    db = db_connect("poolDB")
     cursor = db.cursor()
     team_name = entry_stats[0]
     gm_name = entry_stats[1]
@@ -80,7 +81,7 @@ def create_pool_entry(entry_stats):
     db.close()
 
 def add_player(team_name, player_id, player_name):
-    db = jhp.db_connect("poolDB")
+    db = db_connect("poolDB")
     cursor = db.cursor()
     sql = "SELECT COUNT(*) FROM {table}".format(table=team_name)
     cursor.execute(sql)
@@ -100,17 +101,46 @@ def add_player(team_name, player_id, player_name):
     db.close()
 
 def update_pool_entry(team_name, column, value):
-    db = jhp.db_connect("poolDB")
+    db = db_connect("poolDB")
     cursor = db.cursor()
-    sql = "UPDATE pool_entries SET {col} = {val} WHERE team_name = {name}".format(col=column, val=value, name=team_name)
+    sql = "UPDATE pool_entries SET {col} = {val} WHERE team_name = '{name}'".format(col=column, val=value, name=team_name)
     cursor.execute(sql)
     db.commit()
     db.close()
 
-def update_team_stats(team_name, column, value):
-    db = jhp.db_connect("poolDB")
-    cursor = db.cursor()
-    sql = "UPDATE pool_stats SET {col} = {val} WHERE team_name = {name}".format(col=column, val=value, name=team_name)
+def update_team_stats(entry_name):
+    db = db_connect("poolDB")
+    cursor = db.cursor(buffered=True)
+    sql = "SELECT entry_id FROM pool_stats WHERE entry_id = {id}".format(id=entry_name)
     cursor.execute(sql)
+    team_stats = cursor.fetchone()
+    sql = "SELECT player_id FROM {entry}".format(entry=team_name)
+    cursor.execute(sql)
+    players = cursor.fetchall()
+    prev_points = team_stats[5]
+    curr_points = 0
+    change = 0
+    for player in players:
+        player_id = player[0]
+        stats = get_player_stats(player_id)
+        print(stats)
+        curr_points += stats[9]
+    change = curr_points - prev_points
+    #sql = "UPDATE pool_stats SET goals = {g}, assists = {a}, wins = {w}, shutouts = {so}, points = {p}, status_id = {si} WHERE team_name = '{team}'" \
+    #.format(g=goals, a=assists, w=wins, so=shutouts, p=points, si=status_id, team=team_name)
+    #cursor.execute(sql)
+    db.commit()
+    db.close()
+
+def update_all_team_stats():
+    db = db_connect("poolDB")
+    cursor = db.cursor(buffered=True)
+    sql = "SELECT team_name FROM pool_entries"
+    cursor.execute(sql)
+    teams = cursor.fetchall()
+    for team in teams:
+        team_name = team[0]
+        update_team_stats(team_name)
+
     db.commit()
     db.close()

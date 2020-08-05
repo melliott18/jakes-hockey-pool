@@ -153,3 +153,37 @@ for player in roster['roster']:
             print(player_name)
             pool.add_player(team_name, player_id, player_name)
 
+team_name = "Test4"
+team_gm_name = "Team Name"
+team_gm_email = "email@gmail.com"
+team_gm_hometown = "City Name"
+team_gm_country = "USA"
+team_gm_pay_status = "Paid"
+team_gm_pay_method = "PayPal"
+team_gm_pay_amount = 10
+team_points = 300
+
+team_entry = []
+team_entry.append(team_name)
+team_entry.append(team_gm_name)
+team_entry.append(team_gm_email)
+team_entry.append(team_gm_hometown)
+team_entry.append(team_gm_country)
+team_entry.append(team_gm_pay_status)
+team_entry.append(team_gm_pay_method)
+team_entry.append(team_gm_pay_amount)
+print(team_entry)
+pool.create_pool_entry(team_entry)
+pool.create_roster_table(team_name)
+
+teams = requests.get("{}/teams".format(BASE)).json()
+roster = requests.get("{}/teams/{}/roster".format(BASE, 12)).json()
+
+for player in roster['roster']:
+            player_id = player['person']['id']
+            player_name = player['person']['fullName']
+            print(player_name)
+            pool.add_player(team_name, player_id, player_name)
+
+pool.update_all_team_stats()
+
