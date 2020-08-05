@@ -108,7 +108,7 @@ def update_pool_entry(team_name, column, value):
     db.commit()
     db.close()
 
-def update_team_stats(entry_name):
+def update_pool_team_stats(entry_name):
     db = db_connect("poolDB")
     cursor = db.cursor(buffered=True)
     sql = "SELECT entry_id FROM pool_stats WHERE entry_id = {id}".format(id=entry_name)
@@ -132,7 +132,7 @@ def update_team_stats(entry_name):
     db.commit()
     db.close()
 
-def update_all_team_stats():
+def update_all_pool_team_stats():
     db = db_connect("poolDB")
     cursor = db.cursor(buffered=True)
     sql = "SELECT team_name FROM pool_entries"
@@ -140,7 +140,7 @@ def update_all_team_stats():
     teams = cursor.fetchall()
     for team in teams:
         team_name = team[0]
-        update_team_stats(team_name)
+        update_pool_team_stats(team_name)
 
     db.commit()
     db.close()
