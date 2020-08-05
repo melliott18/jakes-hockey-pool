@@ -7,16 +7,16 @@ __status__ = "Development"
     team statuses in the teams database.
 """
 
-import jhp
+from jhp import *
 import requests
 
 def update_team_status(team_id, status_id):
-    db = jhp.db_connect("teamsDB")
+    db = db_connect("teamsDB")
     cursor = db.cursor()
     sql = "UPDATE teams SET status_id = {status} where team_id = {team}".format(status=status_id, team=team_id)
     cursor.execute(sql)
     db.commit()
-    db = jhp.db_connect("playersDB")
+    db = db_connect("playersDB")
     cursor = db.cursor()
     sql = "UPDATE all_players SET status_id = {status} where team_id = {team}".format(status=status_id, team=team_id)
     cursor.execute(sql)
@@ -27,17 +27,17 @@ def insert_teams():
     BASE = "http://statsapi.web.nhl.com/api/v1"
     teams = requests.get("{}/teams".format(BASE)).json()
 
-    jhp.db_create("teamsDB")
+    db_create("teamsDB")
     sql ='''CREATE TABLE IF NOT EXISTS {table}(
             team_id TINYINT(1) PRIMARY KEY,
             team_name CHAR(25),
             status_id TINYINT(1)
         )'''.format(table="teams")
-    jhp.db_create_table("teamsDB", sql)
-    db = jhp.db_connect("teamsDB")
+    db_create_table("teamsDB", sql)
+    db = db_connect("teamsDB")
     cursor = db.cursor()
 
-    if jhp.table_empty("teamsDB", "teams"):
+    if table_empty("teamsDB", "teams"):
         for team in teams['teams']:
             team_id = team['id']
             team_name = team['name']
