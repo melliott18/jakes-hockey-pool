@@ -8,7 +8,6 @@ __status__ = "Development"
 """
 
 from jhp import *
-import os
 import requests
 import time
 
@@ -369,7 +368,5 @@ def get_player_stats(player_id):
     db.commit()
     db.close()
     return stats
-
-#def update_goalie_stats(player_id, goals, assists):
 
 #def print_all_players():
