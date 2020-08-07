@@ -11,7 +11,7 @@ import mysql.connector
 
 host = "localhost"
 user = "root"
-password = keyring.get_password("MySQL", user)
+password = keyring.get_password("Mysql@localhost:3306", user)
 
 def db_create(db_name):
     global host, user, password
