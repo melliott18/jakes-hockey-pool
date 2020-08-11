@@ -46,7 +46,7 @@ def printPlayerData(ID):
     GoalieStatsJson = GoalieStatsResponse.json()
 
     numGoalie = GoalieStatsJson['total']
-    print(numGoalie,":","Gaolie Name","\t","Team Name","\t\t","playerID\t","G A W L S P")
+    print(numGoalie,":","Goalie Name","\t\t","Team Name","\t\t","playerID\t","G A W L S P")
 
     for i in range(numGoalie):
         try:
@@ -70,8 +70,8 @@ def printPlayerData(ID):
             goalieJson = goaliePeopleResponse.json()
             teamName = goalieJson['people'][0]["currentTeam"]["name"]
 
-            print(i,":",fullName,"\t",teamName,"\t",playerId,"\t",goals,assists,wins,losses,shutouts,totalPts, sep=' ')
-        '''
+            print(i,":",fullName,"\t\t",teamName,"\t\t",playerId,"\t\t",goals,assists,wins,losses,shutouts,totalPts, sep=' ')
+            '''
             There are some issues here that I need to investigate:  I would rather just updat the values that I have on hand
             and avoid looking up new values like player_name, team_id, player_type and status_id.
             Can I just update goals, assists, wins, shutout, points?
@@ -84,7 +84,7 @@ def printPlayerData(ID):
             val = (player_id, player_name, team_id, team_name, player_type, goals, assists, wins, shutouts, points, status_id)
             pcursor.execute(sql, val)
             pdb.commit()
-        '''
+            '''
         # api.nhle typically accurately enters the number of entries in the JSON, but I have seen errors.
         except IndexError:
             print("IndexError: i=",i)

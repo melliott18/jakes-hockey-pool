@@ -2,7 +2,7 @@ __author__ = "Mitchell Elliott"
 __credits__ = "Mitchell Elliott and Jason Cockroft"
 __status__ = "Development"
 
-""" teams-update.py
+""" teams.py
     Keeps track of the teams that are currently in the playoffs and stores the
     team statuses in the teams database.
 """

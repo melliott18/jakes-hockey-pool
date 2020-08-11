@@ -7,13 +7,13 @@ __status__ = "Development"
 """
 
 from jhp import *
-from players import *
+from skaters import *
 from pool import *
-from teams import *
+from nhl_teams import *
 import requests
 
 BASE = "http://statsapi.web.nhl.com/api/v1"
-db = db_connect("poolDB")
+db = db_connect("jhpDB")
 cursor = db.cursor()
 
 team_name = "SuperSlug"
@@ -185,5 +185,5 @@ for player in roster['roster']:
             print(player_name)
             add_player(team_name, player_id, player_name)
 
-update_all_team_stats()
+update_all_pool_team_stats()
 

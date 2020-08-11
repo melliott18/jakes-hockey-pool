@@ -54,27 +54,29 @@ def db_drop_table(db_name, table_name):
     db.close()
     return cursor
 
-def table_exists(db_name, table_name):
+def db_table_exists(db_name, table_name):
     global host, user, password
     db = db_connect(db_name)
     cursor = db.cursor()
     sql = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{db}' AND table_name = '{table}'".format(db=db_name, table=table_name)
     cursor.execute(sql)
+    fetch = cursor.fetchone()
     db.close()
-    if cursor.fetchone() is not None:
+    if fetch is not None:
         return True
     else:
         return False
 
-def table_empty(db_name, table_name):
+def db_table_empty(db_name, table_name):
     global host, user, password
-    if table_exists(db_name, table_name):
+    if db_table_exists(db_name, table_name):
         db = db_connect(db_name)
         cursor = db.cursor()
         sql = "SELECT COUNT(*) FROM {table}".format(db=db_name, table=table_name)
         cursor.execute(sql)
+        fetch = cursor.fetchone()
         db.close()
-        if cursor.fetchone() is None:
+        if fetch[0] == 0:
             return True
         else:
             return False
