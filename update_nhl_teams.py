@@ -1,5 +1,8 @@
 from nhl_teams import *
 
+# Teams to be eliminated
+# First parameter: team_id
+# Second parameter: status_id
 update_nhl_team_status(1, 0)
 update_nhl_team_status(3, 0)
 update_nhl_team_status(5, 0)

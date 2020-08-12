@@ -98,12 +98,10 @@ def update_skaters_table():
                     goals = 0
                     assists = 0
                     points = 0
-                    #print(player_id)
 
                     sql = "SELECT * FROM skaters WHERE player_id = '{id}'".format(id=player_id)
                     cursor.execute(sql)
                     fetch = cursor.fetchone()
-                    #print(fetch)
 
                     if fetch is not None:
                         stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season={}".format(BASE, player_id, year)).json()
