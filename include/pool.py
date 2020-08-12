@@ -6,8 +6,15 @@ __status__ = "Development"
     Manages the creation and insertion of pool teams into the pool database
 """
 
-from jhp import *
-from skaters import *
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+
+from include.jhp import *
+from include.skaters import *
 import requests
 
 def create_entry_table():

@@ -7,7 +7,14 @@ __status__ = "Development"
     team statuses in the teams database.
 """
 
-from jhp import *
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+
+from include.jhp import *
 import requests
 
 def create_nhl_teams_table():

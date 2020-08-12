@@ -7,7 +7,14 @@ __status__ = "Development"
     stats API and puts them in the players database.
 """
 
-from jhp import *
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+
+from include.jhp import *
 import requests
 import time
 
