@@ -3,8 +3,8 @@ __credits__ = "Mitchell Elliott and Jason Cockroft"
 __status__ = "Development"
 
 """ 
-pool_update_test.py
-Pool update test file
+update_pool.py
+Updates the pool team stats by pulling data from the skater and goalie tables.
 """
 
 import os

@@ -3,9 +3,7 @@ __credits__ = "Mitchell Elliott and Jason Cockroft"
 __status__ = "Development"
 
 """ 
-nhl_teams.py
-Keeps track of the NHL teams that are currently in the playoffs and stores the
-statuses of each team in the nhl_teams table in the pool database.
+joe.py
 """
 
 import os

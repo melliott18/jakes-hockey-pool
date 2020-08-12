@@ -11,10 +11,6 @@ from include.pool import *
 
 def main():
     print("main()")
-    #create_active_players_table()
-    #update_all_players()
-    #update_active_players()
-    #optimized_update()
 
 if __name__ == "__main__":
     main()

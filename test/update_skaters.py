@@ -3,8 +3,9 @@ __credits__ = "Mitchell Elliott and Jason Cockroft"
 __status__ = "Development"
 
 """ 
-initialization.py
-File for setting up the hockey pool.
+update_skaters.py
+Updates the skater stats table by pulling stats directly
+from the NHL stats api.
 """
 
 import os
@@ -14,13 +15,6 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from include.nhl_teams import *
 from include.skaters import *
-from include.pool import *
 
-db_create("jhpDB")
-create_nhl_teams_table()
-insert_nhl_teams()
-create_skaters_table()
 update_skaters_table()
-create_pool()
