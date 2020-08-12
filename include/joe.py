@@ -1,3 +1,20 @@
+__author__ = "Jason Cockroft"
+__credits__ = "Mitchell Elliott and Jason Cockroft"
+__status__ = "Development"
+
+""" 
+nhl_teams.py
+Keeps track of the NHL teams that are currently in the playoffs and stores the
+statuses of each team in the nhl_teams table in the pool database.
+"""
+
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+
 import requests
 
 skaterId = str(8466138)

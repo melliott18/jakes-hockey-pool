@@ -2,8 +2,9 @@ __author__ = "Mitchell Elliott"
 __credits__ = "Mitchell Elliott and Jason Cockroft"
 __status__ = "Development"
 
-""" pool_entry_test.py
-    Pool entry test file
+""" 
+pool_entry_test.py
+Pool entry test file
 """
 
 import os

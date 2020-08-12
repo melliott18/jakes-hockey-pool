@@ -2,8 +2,9 @@ __author__ = "Mitchell Elliott"
 __credits__ = "Mitchell Elliott and Jason Cockroft"
 __status__ = "Development"
 
-""" jhp.py
-    Hockey Pool Module
+""" 
+jhp.py
+Database function module
 """
 
 import keyring

@@ -2,8 +2,9 @@ __author__ = "Mitchell Elliott"
 __credits__ = "Mitchell Elliott and Jason Cockroft"
 __status__ = "Development"
 
-""" pool.py
-    Manages the creation and insertion of pool teams into the pool database
+""" 
+pool.py
+Manages the creation and insertion of pool teams into the pool database.
 """
 
 import os

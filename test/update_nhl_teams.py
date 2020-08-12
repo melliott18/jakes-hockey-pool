@@ -1,3 +1,15 @@
+__author__ = "Mitchell Elliott"
+__credits__ = "Mitchell Elliott and Jason Cockroft"
+__status__ = "Development"
+
+""" 
+update_nhl_teams.py
+Updates the playoff statuses of various NHL teams.
+(0 = DNQ, 1 = Eliminated in the 1st Round, 2 = Eliminated in the 2nd Round,
+3 = Eliminated in the 3rd Round, 4 = Eliminated in the 4th (Final) Round,
+5 = Currently in the playoffs/Cup Winner)
+"""
+
 import os
 import sys
 

@@ -1,3 +1,12 @@
+__author__ = "Mitchell Elliott"
+__credits__ = "Mitchell Elliott and Jason Cockroft"
+__status__ = "Development"
+
+""" 
+initialization.py
+File for setting up the hockey pool.
+"""
+
 import os
 import sys
 

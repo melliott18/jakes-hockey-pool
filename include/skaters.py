@@ -2,9 +2,10 @@ __author__ = "Mitchell Elliott"
 __credits__ = "Mitchell Elliott and Jason Cockroft"
 __status__ = "Development"
 
-""" skaters.py
-    Pulls NHL playoff game stats for players from the NHL
-    stats API and puts them in the players database.
+""" 
+skaters.py
+Pulls NHL playoff game stats for skaters from the NHL stats API and puts
+them in the skaters table in the pool database.
 """
 
 import os
@@ -16,7 +17,6 @@ sys.path.insert(0, parent_dir)
 
 from include.jhp import *
 import requests
-import time
 
 year = "20192020"
 
