@@ -15,6 +15,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
+from lib.constants import *
 from lib.jhp import *
 import requests
 
@@ -37,7 +38,7 @@ def insert_nhl_teams():
             team_id = team['id']
             team_name = team['name']
             sql = "INSERT INTO nhl_teams (team_id, team_name, status_id) VALUES (%s, %s, %s)"
-            val = (team_id, team_name, 0)
+            val = (team_id, team_name, DNQ)
             cursor.execute(sql, val)
             db.commit()
     			

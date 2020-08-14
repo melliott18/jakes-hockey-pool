@@ -15,6 +15,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
+from lib.constants import *
 from lib.jhp import *
 import requests
 
@@ -28,7 +29,6 @@ def create_skaters_table():
     teams = cursor.fetchall()
 
     BASE = "http://statsapi.web.nhl.com/api/v1"
-    active = 5
 
     sql ='''CREATE TABLE IF NOT EXISTS skaters(
         player_id INT PRIMARY KEY,
@@ -46,11 +46,7 @@ def create_skaters_table():
     for team in teams:
         team_id = team[0]
         team_name = team[1]
-        team_status = team[2]
-        if team_status == active:
-            status_id = 1
-        else:
-            status_id = 0
+        status_id = team[2]
 
         roster = requests.get("{}/teams/{}/roster".format(BASE, team_id)).json()
 
@@ -82,16 +78,11 @@ def update_skaters_table():
     teams = cursor.fetchall()
 
     BASE = "http://statsapi.web.nhl.com/api/v1"
-    active = 5
 
     for team in teams:
         team_id = team[0]
         team_name = team[1]
-        team_status = team[2]
-        if team_status == active:
-            status_id = 1
-        else:
-            status_id = 0
+        status_id = team[2]
 
         roster = requests.get("{}/teams/{}/roster".format(BASE, team_id)).json()
 
@@ -109,6 +100,7 @@ def update_skaters_table():
                     sql = "SELECT * FROM skaters WHERE player_id = '{id}'".format(id=player_id)
                     cursor.execute(sql)
                     fetch = cursor.fetchone()
+                    print(str(player_id) + " " + str(team_name) + " " + str(fetch[7]))
 
                     if fetch is not None:
                         stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season={}".format(BASE, player_id, year)).json()
@@ -117,6 +109,7 @@ def update_skaters_table():
                             goals = stats['stats'][0]['splits'][0]['stat']['goals']
                             assists = stats['stats'][0]['splits'][0]['stat']['assists']
                             points = stats['stats'][0]['splits'][0]['stat']['points']
+                            #print(status_id)
 
                             sql = "UPDATE skaters SET goals = {g}, assists = {a}, points = {p}, status_id = {s_id} WHERE player_id = '{p_id}'" \
                             .format(g=goals, a=assists, p=points, s_id=status_id, p_id=player_id)
