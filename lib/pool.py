@@ -101,6 +101,7 @@ def create_pool_entry(entry_stats):
         db.commit()
         sql = "ALTER TABLE pool_points ADD {col} VARCHAR(4) NOT NULL".format(col=monthday)
         cursor.execute(sql)
+        db.commit()
         sql = "INSERT INTO pool_points ({col}) VALUES (%s)"
         val = (0)
         cursor.execute(sql, val)
