@@ -20,3 +20,4 @@ from lib.pool import *
 
 update_skaters_table()
 update_all_pool_team_stats()
+update_pool_points_table()

@@ -41,6 +41,9 @@ def create_skaters_table():
         status_id TINYINT(1)
     )'''
 
+    if db_table_exists("jhpDB", "skaters"):
+        return
+
     db_create_table("jhpDB", sql)
 
     for team in teams:

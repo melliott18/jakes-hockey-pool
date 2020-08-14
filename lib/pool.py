@@ -16,6 +16,7 @@ sys.path.insert(0, parent_dir)
 
 from lib.jhp import *
 from lib.skaters import *
+from lib.current_date import *
 import requests
 
 def create_entry_table():
@@ -48,9 +49,17 @@ def create_stats_table():
 
     db_create_table("jhpDB", sql)
 
+def create_pool_points_table():
+    sql = '''CREATE TABLE IF NOT EXISTS pool_points (
+        entry_id SMALLINT PRIMARY KEY AUTO_INCREMENT
+    )'''
+
+    db_create_table("jhpDB", sql)
+
 def create_pool():
     create_entry_table()
     create_stats_table()
+    create_pool_points_table()
 
 def create_roster_table(entry_name):
     db = db_connect("jhpDB")
@@ -79,6 +88,7 @@ def create_pool_entry(entry_stats):
     sql = "SELECT entry_name FROM pool_entries WHERE entry_name = '{name}'".format(name=entry_name)
     cursor.execute(sql)
     fetch = cursor.fetchone()
+    monthday = get_current_monthday()
 
     if fetch is None:
         sql = "INSERT INTO pool_entries (entry_name, gm_name, email, hometown, country, pay_status, pay_method, pay_amount) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
@@ -86,6 +96,11 @@ def create_pool_entry(entry_stats):
         cursor.execute(sql, val)
         sql = "INSERT INTO pool_stats (curr_rank, prev_rank, entry_name, num_act_players, points, points_change, num_duds, prize) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         val = (0, 0, entry_name, 0, 0, 0, 0, 0)
+        cursor.execute(sql, val)
+        sql = "ALTER TABLE pool_points ADD {col} VARCHAR(4) NOT NULL".format(col=monthday)
+        cursor.execute(sql)
+        sql = "INSERT INTO pool_points ({col}) VALUES (%s)"
+        val = (0)
         cursor.execute(sql, val)
         create_roster_table(entry_stats[0])
     
@@ -143,7 +158,7 @@ def update_pool_team_stats(entry_name):
     change = curr_points - prev_points
     #sql = "UPDATE pool_stats SET goals = {g}, assists = {a}, wins = {w}, shutouts = {so}, points = {p}, status_id = {si} WHERE team_name = '{team}'" \
     #.format(g=goals, a=assists, w=wins, so=shutouts, p=points, si=status_id, team=team_name)
-    sql = "UPDATE pool_stats SET points = {p} WHERE entry_name = '{team}'".format(p=curr_points, team=entry_name)
+    sql = "UPDATE pool_stats SET points = {points} WHERE entry_name = '{team}'".format(points=curr_points, team=entry_name)
     cursor.execute(sql)
     db.commit()
     db.close()
@@ -157,6 +172,39 @@ def update_all_pool_team_stats():
     for team in teams:
         entry_name = team[0]
         update_pool_team_stats(entry_name)
+
+    db.commit()
+    db.close()
+
+def update_pool_points_table():
+    db = db_connect("jhpDB")
+    cursor = db.cursor(buffered=True)
+    sql = "SELECT * FROM pool_stats"
+    cursor.execute(sql)
+    teams = cursor.fetchall()
+    monthday = get_current_monthday()
+    sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'jhpDB' AND TABLE_NAME = 'pool_points' AND COLUMN_NAME = '{col}'".format(col=monthday)
+    cursor.execute(sql)
+    fetch = cursor.fetchone()
+
+    if fetch is None:
+        sql = "ALTER TABLE pool_points ADD {col} VARCHAR(4) NOT NULL".format(col=monthday)
+        cursor.execute(sql)
+    
+    for team in teams:
+        entry_id = team[0]
+        points = team[5]
+        sql = "SELECT entry_id FROM pool_points where entry_id = {id}".format(id=entry_id)
+        cursor.execute(sql)
+        fetch = cursor.fetchone()
+
+        if fetch is None:
+            sql = "INSERT INTO pool_points (entry_id, {col}) VALUES (%s, %s)".format(col=monthday)
+            val = (entry_id, points)
+            cursor.execute(sql, val)
+
+        sql = "UPDATE pool_points SET {col} = {pts} WHERE entry_id = '{id}'".format(col=monthday, pts=points, id=entry_id)
+        cursor.execute(sql)
 
     db.commit()
     db.close()
