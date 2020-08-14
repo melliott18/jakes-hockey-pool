@@ -94,17 +94,19 @@ def create_pool_entry(entry_stats):
         sql = "INSERT INTO pool_entries (entry_name, gm_name, email, hometown, country, pay_status, pay_method, pay_amount) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         val = (entry_name, gm_name, email, hometown, country, pay_status, pay_method, pay_amount)
         cursor.execute(sql, val)
+        db.commit()
         sql = "INSERT INTO pool_stats (curr_rank, prev_rank, entry_name, num_act_players, points, points_change, num_duds, prize) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         val = (0, 0, entry_name, 0, 0, 0, 0, 0)
         cursor.execute(sql, val)
+        db.commit()
         sql = "ALTER TABLE pool_points ADD {col} VARCHAR(4) NOT NULL".format(col=monthday)
         cursor.execute(sql)
         sql = "INSERT INTO pool_points ({col}) VALUES (%s)"
         val = (0)
         cursor.execute(sql, val)
+        db.commit()
         create_roster_table(entry_stats[0])
     
-    db.commit()
     db.close()
 
 def add_player(entry_name, player_id, player_name):
@@ -123,8 +125,8 @@ def add_player(entry_name, player_id, player_name):
             sql = "INSERT INTO {table} (player_id, player_name) VALUES(%s, %s)".format(table=entry_name)
             val = (player_id, player_name)
             cursor.execute(sql, val)
-
-    db.commit()
+            db.commit()
+    
     db.close()
 
 def update_pool_entry(entry_name, column, value):
@@ -173,7 +175,6 @@ def update_all_pool_team_stats():
         entry_name = team[0]
         update_pool_team_stats(entry_name)
 
-    db.commit()
     db.close()
 
 def update_pool_points_table():
@@ -183,13 +184,16 @@ def update_pool_points_table():
     cursor.execute(sql)
     teams = cursor.fetchall()
     monthday = get_current_monthday()
-    sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'jhpDB' AND TABLE_NAME = 'pool_points' AND COLUMN_NAME = '{col}'".format(col=monthday)
+    sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = \
+    'jhpDB' AND TABLE_NAME = 'pool_points' AND COLUMN_NAME = \
+    '{col}'".format(col=monthday)
     cursor.execute(sql)
     fetch = cursor.fetchone()
 
     if fetch is None:
         sql = "ALTER TABLE pool_points ADD {col} VARCHAR(4) NOT NULL".format(col=monthday)
         cursor.execute(sql)
+        db.commit()
     
     for team in teams:
         entry_id = team[0]
@@ -202,9 +206,10 @@ def update_pool_points_table():
             sql = "INSERT INTO pool_points (entry_id, {col}) VALUES (%s, %s)".format(col=monthday)
             val = (entry_id, points)
             cursor.execute(sql, val)
+            db.commit()
 
         sql = "UPDATE pool_points SET {col} = {pts} WHERE entry_id = '{id}'".format(col=monthday, pts=points, id=entry_id)
         cursor.execute(sql)
+        db.commit()
 
-    db.commit()
     db.close()
