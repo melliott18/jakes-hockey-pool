@@ -1,0 +1,6 @@
+NHL Stats API Calls
+
+Game Schedule:
+
+https://statsapi.web.nhl.com/api/v1/schedule
+https://statsapi.web.nhl.com/api/v1/schedule?startDate=2020-08-01&endDate=2020-08-01
