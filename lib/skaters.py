@@ -97,24 +97,28 @@ def update_skaters_table():
                     assists = 0
                     points = 0
 
-                    sql = "SELECT * FROM skaters WHERE player_id = '{id}'".format(id=player_id)
+                    sql = "SELECT * FROM skaters WHERE player_id = '{id}'" \
+                    .format(id=player_id)
                     cursor.execute(sql)
                     fetch = cursor.fetchone()
-                    print(str(player_id) + " " + str(team_name) + " " + str(fetch[7]))
+                    print(str(fetch[0]) + " " + str(fetch[1]) + " " + \
+                    str(fetch[2]) + " " + str(fetch[3]) + " " + \
+                    str(fetch[4]) + " " + str(fetch[5]) + " " + \
+                    str(fetch[6]) + " " + str(fetch[7]))
 
                     if fetch is not None:
-                        stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season={}".format(BASE, player_id, year)).json()
+                        stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season={}" \
+                        .format(BASE, player_id, year)).json()
 
                         if stats['stats'][0]['splits']:
                             goals = stats['stats'][0]['splits'][0]['stat']['goals']
                             assists = stats['stats'][0]['splits'][0]['stat']['assists']
                             points = stats['stats'][0]['splits'][0]['stat']['points']
-                            #print(status_id)
 
-                            sql = "UPDATE skaters SET goals = {g}, assists = {a}, points = {p}, status_id = {s_id} WHERE player_id = '{p_id}'" \
-                            .format(g=goals, a=assists, p=points, s_id=status_id, p_id=player_id)
-                            cursor.execute(sql)
-                            db.commit()
+                        sql = "UPDATE skaters SET status_id = {s_id} WHERE player_id = '{p_id}'" \
+                        .format(s_id=status_id, p_id=player_id)
+                        cursor.execute(sql)
+                        db.commit()
 
     db.close()
 
