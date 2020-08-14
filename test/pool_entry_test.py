@@ -14,10 +14,10 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from include.jhp import *
-from include.skaters import *
-from include.pool import *
-from include.nhl_teams import *
+from lib.jhp import *
+from lib.skaters import *
+from lib.pool import *
+from lib.nhl_teams import *
 import requests
 
 BASE = "http://statsapi.web.nhl.com/api/v1"

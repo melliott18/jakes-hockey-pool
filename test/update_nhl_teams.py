@@ -17,7 +17,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from include.nhl_teams import *
+from lib.nhl_teams import *
 
 # Teams to be eliminated
 # First parameter: team_id
