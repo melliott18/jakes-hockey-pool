@@ -41,9 +41,6 @@ def create_skaters_table():
         status_id TINYINT(1)
     )'''
 
-    if db_table_exists("jhpDB", "skaters"):
-        return
-
     db_create_table("jhpDB", sql)
 
     for team in teams:
@@ -100,8 +97,7 @@ def update_skaters_table():
                     assists = 0
                     points = 0
 
-                    sql = "SELECT * FROM skaters WHERE player_id = '{id}'" \
-                    .format(id=player_id)
+                    sql = "SELECT * FROM skaters WHERE player_id = '{id}'".format(id=player_id)
                     cursor.execute(sql)
                     fetch = cursor.fetchone()
                     print(str(fetch[0]) + " " + str(fetch[1]) + " " + \
@@ -110,16 +106,15 @@ def update_skaters_table():
                     str(fetch[6]) + " " + str(fetch[7]))
 
                     if fetch is not None:
-                        stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season={}" \
-                        .format(BASE, player_id, year)).json()
+                        stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season={}".format(BASE, player_id, year)).json()
 
                         if stats['stats'][0]['splits']:
                             goals = stats['stats'][0]['splits'][0]['stat']['goals']
                             assists = stats['stats'][0]['splits'][0]['stat']['assists']
                             points = stats['stats'][0]['splits'][0]['stat']['points']
 
-                        sql = "UPDATE skaters SET status_id = {s_id} WHERE player_id = '{p_id}'" \
-                        .format(s_id=status_id, p_id=player_id)
+                        sql = "UPDATE skaters SET goals = {g}, assists = {a}, points = {p}, status_id = {s_id} WHERE player_id = '{p_id}'" \
+                        .format(g=goals, a=assists, p=points, s_id=status_id, p_id=player_id)
                         cursor.execute(sql)
                         db.commit()
 
