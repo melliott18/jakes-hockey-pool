@@ -30,7 +30,15 @@ def create_skaters_table():
 
     BASE = "http://statsapi.web.nhl.com/api/v1"
 
-    sql ='''CREATE TABLE IF NOT EXISTS skaters(
+    sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = \
+    'jhpDB' AND TABLE_NAME = 'skaters'"
+    cursor.execute(sql)
+    fetch = cursor.fetchone()
+
+    if fetch is not None:
+        return
+
+    sql ='''CREATE TABLE skaters(
         player_id INT PRIMARY KEY,
         player_name CHAR(25),
         team_id TINYINT(1),

@@ -56,10 +56,18 @@ def create_pool_points_table():
 
     db_create_table("jhpDB", sql)
 
+def create_pool_rankings_table():
+    sql = '''CREATE TABLE IF NOT EXISTS pool_rankings (
+        entry_id SMALLINT PRIMARY KEY AUTO_INCREMENT
+    )'''
+
+    db_create_table("jhpDB", sql)
+
 def create_pool():
     create_entry_table()
     create_stats_table()
     create_pool_points_table()
+    create_pool_rankings_table()
 
 def create_roster_table(entry_name):
     db = db_connect("jhpDB")
@@ -211,6 +219,44 @@ def update_pool_points_table():
             db.commit()
 
         sql = "UPDATE pool_points SET {col} = {pts} WHERE entry_id = '{id}'".format(col=monthday, pts=points, id=entry_id)
+        cursor.execute(sql)
+        db.commit()
+
+    db.close()
+
+def update_pool_rankings_table():
+    db = db_connect("jhpDB")
+    cursor = db.cursor(buffered=True)
+    sql = "SELECT * FROM pool_stats"
+    cursor.execute(sql)
+    teams = cursor.fetchall()
+    monthday = get_current_monthday()
+    sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = \
+    'jhpDB' AND TABLE_NAME = 'pool_rankings' AND COLUMN_NAME = \
+    '{col}'".format(col=monthday)
+    cursor.execute(sql)
+    fetch = cursor.fetchone()
+
+    if fetch is None:
+        sql = "ALTER TABLE pool_rankings ADD {col} VARCHAR(4) NOT NULL".format(col=monthday)
+        cursor.execute(sql)
+        db.commit()
+    
+    for team in teams:
+        entry_id = team[0]
+        ranking = team[1]
+        print(ranking)
+        sql = "SELECT entry_id FROM pool_rankings where entry_id = {id}".format(id=entry_id)
+        cursor.execute(sql)
+        fetch = cursor.fetchone()
+
+        if fetch is None:
+            sql = "INSERT INTO pool_rankings (entry_id, {col}) VALUES (%s, %s)".format(col=monthday)
+            val = (entry_id, ranking)
+            cursor.execute(sql, val)
+            db.commit()
+
+        sql = "UPDATE pool_rankings SET {col} = {rank} WHERE entry_id = '{id}'".format(col=monthday, rank=ranking, id=entry_id)
         cursor.execute(sql)
         db.commit()
 
