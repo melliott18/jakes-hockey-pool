@@ -1,7 +1,19 @@
 import requests
+import os
+import sys
 
-from jhp import *
-from constants import *
+# from jhp import *
+# from constants import *
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+
+from lib.jhp import *
+from lib.constants import *
+from lib.nhl_teams import *
+from lib.skaters import *
+from lib.pool import *
 
 # 8466138 = Joe Thornton
 skaterId = str(8466138)
@@ -74,6 +86,10 @@ def printPlayerData(ID):
             goaliePeopleResponse = requests.get(people_url)
             goalieJson = goaliePeopleResponse.json()
             teamName = goalieJson['people'][0]["currentTeam"]["name"]
+            teamId = goalieJson['people'][0]["currentTeam"]["id"]
+
+            # Need to look up the current status of the team in the teams table.
+            # Once i have that status, then I need to assign that status to the goalie.
 
             print(i,":",fullName,"\t\t",teamName,"\t\t",playerId,"\t\t",goals,assists,wins,losses,shutouts,totalPts, sep=' ')
             '''
@@ -125,8 +141,18 @@ def init_goalie_pTable():
     db = db_connect("JasonDB")
     cursor = db.cursor()
 
-    #cursor.execute("SELECT * FROM nhl_teams")
-    #teams = cursor.fetchall()
+    db2 = db_connect("jhpDB")
+    cursor2 = db2.cursor()
+    cursor2.execute("SELECT * FROM nhl_teams")
+    teams = cursor2.fetchall()
+
+    teamDict = {}
+
+    for team in teams:
+        team_id = team[0]
+        team_name = team[1]
+        status_id = team[2]
+        teamDict[team_id] = (team_name,status_id) #create a team dictionary keyed by team_id, values are tuples (name,status)
 
     goalie_url = base_goalie_url + goalie_stats_query + year
     GoalieStatsResponse = requests.get(goalie_url)
@@ -136,8 +162,14 @@ def init_goalie_pTable():
     GoalieStatsJson = GoalieStatsResponse.json()
 
     numGoalie = GoalieStatsJson['total']
-    print(numGoalie,":","Goalie Name","\t\t","Team Name","\t\t","playerId\t\t","G A W L S P")
+    print(numGoalie,":","Goalie Name","\t\t","Team Name","\t\t","playerId\t\t","G A W L S P S")
     
+    '''
+        Basic algorithm: From the nhle-api get the JSON of playoff goalies. Traverse this JSON pulling out each goalie's
+        player_id and then looking up their team_id from the apistat.  Once we have the team_id, go to the teams table 
+        and determine the team status.  With the stats from nhle-api and the status from teams, update the goalie stats 
+        table.
+    '''
     for i in range(numGoalie):
         try:
             fullName = GoalieStatsJson['data'][i]["goalieFullName"]
@@ -147,24 +179,25 @@ def init_goalie_pTable():
             wins = GoalieStatsJson['data'][i]["wins"]
             shutouts = GoalieStatsJson['data'][i]["shutouts"]
             totalPts = GoalieStatsJson['data'][i]["goals"]+GoalieStatsJson['data'][i]["assists"]+ 2*(GoalieStatsJson['data'][i]["wins"])+GoalieStatsJson['data'][i]["shutouts"]
-            statusId = CON_NOQUAL
 
             # losses are not required in our playersDB but I used it for error checking
             losses = GoalieStatsJson['data'][i]["losses"]
-            """
-            The following 4 lines should be deleted from the final version.
-            These were simply added for error checking.  The extra get slows the routine down considerably.
-            """
+
+            # Retreive teamId from playerId
             people_url = base_people_url + str(playerId)
             goaliePeopleResponse = requests.get(people_url)
             goalieJson = goaliePeopleResponse.json()
             teamName = goalieJson['people'][0]["currentTeam"]["name"]
+            teamId = goalieJson['people'][0]["currentTeam"]["id"]
 
-            print(i,":",fullName,"\t\t",teamName,"\t\t",playerId,"\t\t",goals,assists,wins,losses,shutouts,totalPts, sep=' ')
+            #retreive team status and assign to player status variable
+            pStatus = teamDict[teamId][1]
+
+            print(i,":",fullName,"\t\t",teamName,"\t\t",playerId,"\t\t",goals,assists,wins,losses,shutouts,totalPts,pStatus,sep=' ')
             
             sql = "INSERT INTO goalies (playerId,fullName, teamName, goals, assists, wins, shutouts, totalPts, statusId) \
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            val = (playerId, fullName, teamName, goals, assists, wins, shutouts, totalPts, statusId)
+            val = (playerId, fullName, teamName, goals, assists, wins, shutouts, totalPts, pStatus)
             cursor.execute(sql, val)
             db.commit()
             
@@ -176,6 +209,88 @@ def init_goalie_pTable():
 
     db.close()
 
+def update_goalie_pTable():
+
+    global year
+    db = db_connect("JasonDB")
+    cursor = db.cursor()
+
+    db2 = db_connect("jhpDB")
+    cursor2 = db2.cursor()
+    cursor2.execute("SELECT * FROM nhl_teams")
+    teams = cursor2.fetchall()
+
+    teamDict = {}
+
+    for team in teams:
+        team_id = team[0]
+        team_name = team[1]
+        status_id = team[2]
+        teamDict[team_id] = (team_name,status_id) #create a team dictionary keyed by team_id, values are tuples (name,status)
+
+    goalie_url = base_goalie_url + goalie_stats_query + year
+    GoalieStatsResponse = requests.get(goalie_url)
+    print(GoalieStatsResponse)
+
+#   Gets the complete list of active goalie stats
+    GoalieStatsJson = GoalieStatsResponse.json()
+
+    numGoalie = GoalieStatsJson['total']
+    print(numGoalie,":","Goalie Name","\t\t","Team Name","\t\t","playerId\t\t","G A W L S P S")
+    
+    '''
+        Basic algorithm: From the nhle-api get the JSON of playoff goalies. Traverse this JSON pulling out each goalie's
+        player_id and then looking up their team_id from the apistat.  Once we have the team_id, go to the teams table 
+        and determine the team status.  With the stats from nhle-api and the status from teams, update the goalie stats 
+        table.
+    '''
+    for i in range(numGoalie):
+        try:
+            fullName = GoalieStatsJson['data'][i]["goalieFullName"]
+            playerId = GoalieStatsJson['data'][i]["playerId"]
+            goals = GoalieStatsJson['data'][i]["goals"]
+            assists = GoalieStatsJson['data'][i]["assists"]
+            wins = GoalieStatsJson['data'][i]["wins"]
+            shutouts = GoalieStatsJson['data'][i]["shutouts"]
+            totalPts = GoalieStatsJson['data'][i]["goals"]+GoalieStatsJson['data'][i]["assists"]+ 2*(GoalieStatsJson['data'][i]["wins"])+GoalieStatsJson['data'][i]["shutouts"]
+
+            # losses are not required in our playersDB but I used it for error checking
+            losses = GoalieStatsJson['data'][i]["losses"]
+
+            # Retreive teamId from playerId
+            people_url = base_people_url + str(playerId)
+            goaliePeopleResponse = requests.get(people_url)
+            goalieJson = goaliePeopleResponse.json()
+            teamName = goalieJson['people'][0]["currentTeam"]["name"]
+            teamId = goalieJson['people'][0]["currentTeam"]["id"]
+
+            #retreive team status and assign to player status variable
+            pStatus = teamDict[teamId][1]
+
+            print(i,":",fullName,"\t\t",teamName,"\t\t",playerId,"\t\t",goals,assists,wins,losses,shutouts,totalPts,pStatus,sep=' ')
+            
+            '''
+            sql = "INSERT INTO goalies (playerId,fullName, teamName, goals, assists, wins, shutouts, totalPts, statusId) \
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            val = (playerId, fullName, teamName, goals, assists, wins, shutouts, totalPts, pStatus)
+            '''
+
+
+            #sql = "UPDATE goalies SET goals = {g}, assists = {a}, wins= {w}, shutouts = {so}, totalPts = {tp} statusId = {st} WHERE playerId = '{p_id}'" \
+            #        .format(g=goals, a=assists, w=wins, so=shutouts, tp=totalPts, st=pStatus, p_id=playerId)
+
+            sql = "UPDATE goalies SET goals = {g}, assists = {a}, wins= {w}, shutouts = {so}, totalPts = {tp}, statusId = {st} WHERE playerId = '{p_id}'" \
+                    .format(g=goals, a=assists, w=wins, so=shutouts, tp=totalPts, st = pStatus, p_id=playerId)
+
+            cursor.execute(sql)
+            db.commit()
+            
+        # api.nhle typically accurately enters the number of entries in the JSON, but I have seen errors.
+        except IndexError:
+            print("IndexError: i=",i)
+            continue
+
+    db.close()
 
 def main():
 
@@ -183,8 +298,15 @@ def main():
 
 #    printPlayerData(skaterId)
 
+  
+    create_nhl_teams_table() #creates teams table with no rows
+    insert_nhl_teams()    #set status as DNQ
+    # Shouldn't we call update_nhl_teams.py at this point to set the teams status with the latest info?
+
     create_goalie_pTable()
-    init_goalie_pTable()
+#    init_goalie_pTable()
+
+    update_goalie_pTable()
 
 if __name__ == '__main__':
     main()
