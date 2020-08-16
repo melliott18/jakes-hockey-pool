@@ -100,10 +100,10 @@ def update_skaters_table():
                     sql = "SELECT * FROM skaters WHERE player_id = '{id}'".format(id=player_id)
                     cursor.execute(sql)
                     fetch = cursor.fetchone()
-                    print(str(fetch[0]) + " " + str(fetch[1]) + " " + \
-                    str(fetch[2]) + " " + str(fetch[3]) + " " + \
-                    str(fetch[4]) + " " + str(fetch[5]) + " " + \
-                    str(fetch[6]) + " " + str(fetch[7]))
+                    print(str(fetch[0]) + " " + str(fetch[1]).rjust(25, ' ') + " " + \
+                    str(fetch[2]).rjust(2, ' ') + " " + str(fetch[3]).rjust(20, ' ') + " " + \
+                    str(fetch[4]).rjust(2, ' ') + " " + str(fetch[5]).rjust(2, ' ') + " " + \
+                    str(fetch[6]).rjust(2, ' ') + " " + str(fetch[7]).rjust(2, ' '))
 
                     if fetch is not None:
                         stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season={}".format(BASE, player_id, year)).json()

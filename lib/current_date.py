@@ -6,6 +6,6 @@ def get_current_monthday():
     formatted_date = string_date.replace("-", "")
     month_day = formatted_date[4:]
     string = "_"
-    #string.append(month_day)
     string += month_day
     return string
+    
