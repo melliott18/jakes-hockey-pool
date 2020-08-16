@@ -18,22 +18,25 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
 from lib.nhl_teams import *
+from lib.constants import *
 
 # Teams to be eliminated
 # First parameter: team_id
 # Second parameter: status_id
-update_nhl_team_status(1, 0)
-update_nhl_team_status(3, 0)
-update_nhl_team_status(5, 0)
-update_nhl_team_status(7, 0)
-update_nhl_team_status(9, 0)
-update_nhl_team_status(10, 0)
-update_nhl_team_status(13, 0)
-update_nhl_team_status(17, 0)
-update_nhl_team_status(18, 0)
-update_nhl_team_status(22, 0)
-update_nhl_team_status(24, 0)
-update_nhl_team_status(26, 0)
-update_nhl_team_status(28, 0)
-update_nhl_team_status(30, 0)
-update_nhl_team_status(52, 0)
+
+update_nhl_team_status(54, ACTIVE) # Las Vegas Knights
+update_nhl_team_status(16, ACTIVE) # Chicago Blackhawks
+update_nhl_team_status(21, ACTIVE) # Colorado Avalanche
+update_nhl_team_status(53, ACTIVE) # Arizona Coyotes
+update_nhl_team_status(25, ACTIVE) # Dallas Stars
+update_nhl_team_status(20, ACTIVE) # Calgary Flames
+update_nhl_team_status(19, ACTIVE) # St Louis Blues
+update_nhl_team_status(23, ACTIVE) # Vancouver Canucks
+update_nhl_team_status(4, ACTIVE)  # Philedelphia Flyers
+update_nhl_team_status(8, ACTIVE)  # Montreal Canadiens
+update_nhl_team_status(14, ACTIVE) # Tampa Bay Lightning
+update_nhl_team_status(29, ACTIVE) # Columbus Blue Jackets
+update_nhl_team_status(15, ACTIVE) # Washington Capitals
+update_nhl_team_status(2, ACTIVE)  # New York Islanders
+update_nhl_team_status(6, ACTIVE)  # Boston Bruins
+update_nhl_team_status(12, ACTIVE) # Carolina Hurricanes

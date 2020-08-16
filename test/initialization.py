@@ -19,8 +19,11 @@ from lib.skaters import *
 from lib.pool import *
 
 db_create("jhpDB")
-create_nhl_teams_table()
-insert_nhl_teams()
-create_skaters_table()
-update_skaters_table()
-create_pool()
+create_nhl_teams_table() #creates teams table with no rows
+insert_nhl_teams()    #set status as DNQ
+
+#  Call update_nhl_teams.py at this point to set the teams status with the latest info
+
+create_skaters_table() # creates and initializes skaters with pts,etc  = 0, and sets player status as same as team table status
+update_skaters_table() # updates skaters with latest api stats.
+#create_pool()
