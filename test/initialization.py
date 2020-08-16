@@ -26,4 +26,4 @@ insert_nhl_teams()    #set status as DNQ
 
 create_skaters_table() # creates and initializes skaters with pts,etc  = 0, and sets player status as same as team table status
 update_skaters_table() # updates skaters with latest api stats.
-#create_pool()
+create_pool()
