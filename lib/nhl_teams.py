@@ -22,6 +22,7 @@ import requests
 def create_nhl_teams_table():
     sql ='''CREATE TABLE IF NOT EXISTS {table}(
             team_id TINYINT(1) PRIMARY KEY,
+            team_abbr CHAR(3),
             team_name CHAR(25),
             status_id TINYINT(1)
         )'''.format(table="nhl_teams")
@@ -36,21 +37,37 @@ def insert_nhl_teams():
     if db_table_empty("jhpDB", "nhl_teams"):
         for team in teams['teams']:
             team_id = team['id']
+            team_abbr = team['abbreviation']
+            print(team_abbr)
             team_name = team['name']
-            sql = "INSERT INTO nhl_teams (team_id, team_name, status_id) VALUES (%s, %s, %s)"
-            val = (team_id, team_name, DNQ)
+            sql = "INSERT INTO nhl_teams (team_id, team_abbr, team_name, status_id) VALUES (%s, %s, %s, %s)"
+            val = (team_id, team_abbr, team_name, DNQ)
             cursor.execute(sql, val)
             db.commit()
     			
     db.close()
 
+def update_nhl_teams_table(team_id, column, value):
+    db = db_connect("jhpDB")
+    cursor = db.cursor()
+    sql = "UPDATE nhl_teams SET {col} = {val} WHERE team_id = '{team}'".format(col=column, val=value, team=team_id)
+    cursor.execute(sql)
+    db.commit()
+
+    if column == status_id:
+        sql = "UPDATE players SET status_id = {status} WHERE team_id = '{team}'".format(status=value, team=team_id)
+        cursor.execute(sql)
+        db.commit()
+
+    db.close()
+
 def update_nhl_team_status(team_id, status_id):
     db = db_connect("jhpDB")
     cursor = db.cursor()
-    sql = "UPDATE nhl_teams SET status_id = {status} where team_id = {team}".format(status=status_id, team=team_id)
+    sql = "UPDATE nhl_teams SET status_id = {status} WHERE team_id = '{team}'".format(status=status_id, team=team_id)
     cursor.execute(sql)
     db.commit()
-    sql = "UPDATE skaters SET status_id = {status} where team_id = {team}".format(status=status_id, team=team_id)
+    sql = "UPDATE skaters SET status_id = {status} WHERE team_id = '{team}'".format(status=status_id, team=team_id)
     cursor.execute(sql)
     db.commit()
     db.close()

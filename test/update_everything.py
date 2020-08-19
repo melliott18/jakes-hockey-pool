@@ -17,6 +17,7 @@ sys.path.insert(0, parent_dir)
 from lib.skaters import *
 from lib.pool import *
 
+set_prev_rank_to_curr_rank()
 update_skaters_table()
 update_all_pool_team_stats()
 update_pool_points_table()

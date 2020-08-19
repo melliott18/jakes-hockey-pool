@@ -245,7 +245,6 @@ def update_pool_rankings_table():
     for team in teams:
         entry_id = team[0]
         ranking = team[1]
-        print(ranking)
         sql = "SELECT entry_id FROM pool_rankings where entry_id = {id}".format(id=entry_id)
         cursor.execute(sql)
         fetch = cursor.fetchone()
@@ -378,10 +377,10 @@ def update_dud_count():
 
     db.close()
     
-def get_pool_stats():
+def get_pool_stats(column, order):
     db = db_connect("jhpDB")
     cursor = db.cursor(buffered=True)
-    sql = "SELECT * FROM pool_stats"
+    sql = "SELECT * FROM pool_stats ORDER BY {col} {ord}".format(col=column, ord=order)
     cursor.execute(sql)
     stats = cursor.fetchall()
     return stats
@@ -395,34 +394,46 @@ def get_pool_stats_ordered():
     db.close()
     return stats
 
-def print_pool_stats():
-    stats = get_pool_stats()
+def print_pool_stats(column, order):
+    stats = get_pool_stats(column, order)
+
+    print("+----------------------------------------------------------------------------------+")
+    print("| Rank | Prev |              Team              | Active | Pts | Chg | Duds | Prize |")
 
     for row in stats:
         rank = str(row[1]).rjust(4, ' ')
         prev = str(row[2]).rjust(4, ' ')
-        team = str(row[3]).ljust(20, ' ')
-        active = str(row[4]).rjust(6, ' ')
-        points = str(row[5]).rjust(3, ' ')
-        change = str(row[6]).rjust(3, ' ')
-        duds = str(row[7]).rjust(4, ' ')
-        prize = str(row[5]).rjust(5, ' ')
-        print(rank + " " + prev + " " + team + " " + active + " " + points + " " + change + " " + duds + " " + prize)
-
-def print_pool_stats_ordered():
-    stats = get_pool_stats_ordered()
-
-    for row in stats:
-        rank = str(row[1]).rjust(4, ' ')
-        prev = str(row[2]).rjust(4, ' ')
-        team = str(row[3]).ljust(20, ' ')
+        team = str(row[3]).ljust(30, ' ')
         active = str(row[4]).rjust(6, ' ')
         points = str(row[5]).rjust(3, ' ')
         change = str(row[6]).rjust(3, ' ')
         duds = str(row[7]).rjust(4, ' ')
         prize = str(row[8]).rjust(5, ' ')
-        print("+------------------------------------------------------------------------+")
+        print("+----------------------------------------------------------------------------------+")
         print("| " + rank + " | " + prev + " | " + team + " | " + active + " | " + points + " | " + change + " | " + duds + " | " + prize + " |")
+
+    print("+----------------------------------------------------------------------------------+")
+
+
+def print_pool_stats_ordered():
+    stats = get_pool_stats_ordered()
+
+    print("+----------------------------------------------------------------------------------+")
+    print("| Rank | Prev |              Team              | Active | Pts | Chg | Duds | Prize |")
+
+    for row in stats:
+        rank = str(row[1]).rjust(4, ' ')
+        prev = str(row[2]).rjust(4, ' ')
+        team = str(row[3]).ljust(30, ' ')
+        active = str(row[4]).rjust(6, ' ')
+        points = str(row[5]).rjust(3, ' ')
+        change = str(row[6]).rjust(3, ' ')
+        duds = str(row[7]).rjust(4, ' ')
+        prize = str(row[8]).rjust(5, ' ')
+        print("+----------------------------------------------------------------------------------+")
+        print("| " + rank + " | " + prev + " | " + team + " | " + active + " | " + points + " | " + change + " | " + duds + " | " + prize + " |")
+
+    print("+----------------------------------------------------------------------------------+")
 
 def print_pool_points():
     stats = get_pool_points()

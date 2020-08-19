@@ -14,9 +14,6 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from lib.pool import print_pool_stats_ordered
+from lib.pool import print_pool_stats
 
-print("+------------------------------------------------------------------------+")
-print("| Rank | Prev |         Team         | Active | Pts | Chg | Duds | Prize |")
-print_pool_stats_ordered()
-print("+------------------------------------------------------------------------+")
+print_pool_stats("points", "DESC")
