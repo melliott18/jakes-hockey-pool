@@ -34,7 +34,7 @@ update_nhl_team_status(7, DNQ)      # Buffalo Sabres
 update_nhl_team_status(8, ACTIVE)   # Montreal Canadiens
 update_nhl_team_status(9, DNQ)      # Ottawa Senators
 update_nhl_team_status(10, DNQ)     # Toronto Maple Leafs
-update_nhl_team_status(12, R1_ELIM)  # Carolina Hurricanes
+update_nhl_team_status(12, R1_ELIM) # Carolina Hurricanes
 update_nhl_team_status(13, DNQ)     # Florida Panthers
 update_nhl_team_status(14, ACTIVE)  # Tampa Bay Lightning
 update_nhl_team_status(15, ACTIVE)  # Washington Capitals
@@ -50,8 +50,8 @@ update_nhl_team_status(24, DNQ)     # Anaheim Ducks
 update_nhl_team_status(25, ACTIVE)  # Dallas Stars
 update_nhl_team_status(26, DNQ)     # Los Angeles Kings
 update_nhl_team_status(28, DNQ)     # San Jose Sharks
-update_nhl_team_status(29, R1_ELIM)  # Columbus Blue Jackets
+update_nhl_team_status(29, R1_ELIM) # Columbus Blue Jackets
 update_nhl_team_status(30, DNQ)     # Minnesota Wild
 update_nhl_team_status(52, DNQ)     # Winnipeg Jets
-update_nhl_team_status(53, R1_ELIM)  # Arizona Coyotes
+update_nhl_team_status(53, R1_ELIM) # Arizona Coyotes
 update_nhl_team_status(54, ACTIVE)  # Las Vegas Knights
