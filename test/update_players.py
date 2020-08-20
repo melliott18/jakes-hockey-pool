@@ -3,8 +3,8 @@ __credits__ = "Mitchell Elliott and Jason Cockroft"
 __status__ = "Development"
 
 """ 
-update_everything.py
-Updates the pool and all stats related to it.
+update_players.py
+Updates the skater stats table by pulling from the NHL stats api.
 """
 
 import os
@@ -15,11 +15,6 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
 from lib.players import *
-from lib.pool import *
 
-set_prev_rank_to_curr_rank()
+create_players_table()
 update_players_table()
-update_all_pool_team_stats()
-update_pool_points_table()
-update_pool_points_rankings()
-update_pool_rankings_table()
