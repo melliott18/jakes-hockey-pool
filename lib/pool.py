@@ -15,7 +15,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
 from lib.jhp import *
-from lib.skaters import *
+from lib.players import *
 from lib.current_date import *
 import requests
 
@@ -156,16 +156,20 @@ def update_pool_team_stats(entry_name):
     sql = "SELECT player_id FROM {entry}".format(entry=pool_team_stats[3])
     cursor.execute(sql)
     players = cursor.fetchall()
-    prev_points = pool_team_stats[5]
+    prev_points = 0
+    #curr_points = pool_team_stats[5]
     curr_points = 0
     change = 0
 
     for player in players:
         player_id = player[0]
-        stats = get_skater_stats(player_id)
+        stats = get_player_stats(player_id)
+        print(player[0])
 
         if stats is not None:
-            curr_points += stats[6]
+            curr_points += stats[10]
+
+    print()
 
     change = curr_points - prev_points
     #sql = "UPDATE pool_stats SET goals = {g}, assists = {a}, wins = {w}, shutouts = {so}, points = {p}, status_id = {si} WHERE team_name = '{team}'" \
@@ -319,7 +323,7 @@ def update_active_player_count():
         active_count = 0
 
         for player in players:
-            sql = "SELECT status_id FROM skaters WHERE player_id = '{id}'".format(id=player[0])
+            sql = "SELECT status_id FROM players WHERE player_id = '{id}'".format(id=player[0])
             cursor.execute(sql)
             status_id = cursor.fetchone()
             if status_id is not None and status_id[0] == 5:
@@ -365,7 +369,7 @@ def update_dud_count():
         dud_count = 0
 
         for player in players:
-            sql = "SELECT points FROM skaters WHERE player_id = '{id}'".format(id=player[0])
+            sql = "SELECT points FROM players WHERE player_id = '{id}'".format(id=player[0])
             cursor.execute(sql)
             points = cursor.fetchone()
             if points is not None and points[0] == 0:

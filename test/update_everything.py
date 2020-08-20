@@ -17,8 +17,12 @@ sys.path.insert(0, parent_dir)
 from lib.players import *
 from lib.pool import *
 
-set_prev_rank_to_curr_rank()
-update_players_table()
+#set_prev_rank_to_curr_rank()
+#update_player_statuses()
+#update_players_table()
+#update_active_player_count()
+#update_points_change()
+#update_dud_count()
 update_all_pool_team_stats()
 update_pool_points_table()
 update_pool_points_rankings()
