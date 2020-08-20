@@ -97,7 +97,7 @@ def create_player_points_table():
 
     db_create_table("jhpDB", sql)
 
-def update_players_table():
+def update_players_table(status):
     global year
     db = db_connect("jhpDB")
     cursor = db.cursor(buffered=True)
@@ -112,68 +112,7 @@ def update_players_table():
         team_name = team[2]
         status_id = team[3]
 
-        roster = requests.get("{}/teams/{}/roster".format(BASE, team_id)).json()
-
-        if "roster" in roster:
-            for player in roster['roster']:
-                player_id = player['person']['id']
-                player_name = player['person']['fullName']
-                position = player['position']['code']
-
-                if position != "G":
-                    games = 0
-                    goals = 0
-                    assists = 0
-                    wins = 0
-                    shutouts = 0
-                    points = 0
-                    today = 0
-                    selected = 0
-
-                    sql = "SELECT * FROM players WHERE player_id = '{id}'".format(id=player_id)
-                    cursor.execute(sql)
-                    fetch = cursor.fetchone()
-
-                    if fetch is not None:
-                        stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season={}".format(BASE, player_id, year)).json()
-
-                        if stats['stats'][0]['splits']:
-                            games = stats['stats'][0]['splits'][0]['stat']['games']
-                            goals = stats['stats'][0]['splits'][0]['stat']['goals']
-                            assists = stats['stats'][0]['splits'][0]['stat']['assists']
-                            points = stats['stats'][0]['splits'][0]['stat']['points']
-
-                        print(str(player_id) + " " + str(player_name).ljust(25, ' ') + " " + \
-                        str(team_id).rjust(2, ' ') + " " + str(team_abbr) + " " + \
-                        str(team_name).ljust(25, ' ') + " " + str(games).rjust(2, ' ') + " " + \
-                        str(goals).rjust(2, ' ') + " " + str(assists).rjust(2, ' ')  + " " +  \
-                        str(wins).rjust(2, ' ') + " " + str(shutouts).rjust(2, ' ')  + " " +  \
-                        str(points).rjust(2, ' ') + " " + str(today).rjust(2, ' ')  + " " +  \
-                        str(selected).rjust(2, ' ') + " " + str(status_id).rjust(2, ' '))
-
-                        sql = "UPDATE players SET games = {gp}, goals = {g}, assists = {a}, points = {p}, status_id = {s_id} WHERE player_id = '{p_id}'" \
-                        .format(gp=games, g=goals, a=assists, p=points, s_id=status_id, p_id=player_id)
-                        cursor.execute(sql)
-                        db.commit()
-
-    db.close()
-
-def update_active_players():
-    global year
-    db = db_connect("jhpDB")
-    cursor = db.cursor(buffered=True)
-    cursor.execute("SELECT * FROM nhl_teams")
-    teams = cursor.fetchall()
-
-    BASE = "http://statsapi.web.nhl.com/api/v1"
-
-    for team in teams:
-        team_id = team[0]
-        team_abbr = team[1]
-        team_name = team[2]
-        status_id = team[3]
-
-        if status_id == ACTIVE:
+        if status_id == status:
             roster = requests.get("{}/teams/{}/roster".format(BASE, team_id)).json()
 
             if "roster" in roster:
