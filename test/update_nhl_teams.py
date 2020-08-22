@@ -37,12 +37,12 @@ update_nhl_team_status(10, DNQ)     # Toronto Maple Leafs
 update_nhl_team_status(12, R1_ELIM) # Carolina Hurricanes
 update_nhl_team_status(13, DNQ)     # Florida Panthers
 update_nhl_team_status(14, ACTIVE)  # Tampa Bay Lightning
-update_nhl_team_status(15, ACTIVE)  # Washington Capitals
+update_nhl_team_status(15, R1_ELIM)  # Washington Capitals
 update_nhl_team_status(16, R1_ELIM) # Chicago Blackhawks
 update_nhl_team_status(17, DNQ)     # Detroit Red Wings
 update_nhl_team_status(18, DNQ)     # Nashville Predators
 update_nhl_team_status(19, ACTIVE)  # St Louis Blues
-update_nhl_team_status(20, ACTIVE)  # Calgary Flames
+update_nhl_team_status(20, R1_ELIM)  # Calgary Flames
 update_nhl_team_status(21, ACTIVE)  # Colorado Avalanche
 update_nhl_team_status(22, DNQ)     # Edmonton Oilers
 update_nhl_team_status(23, ACTIVE)  # Vancouver Canucks

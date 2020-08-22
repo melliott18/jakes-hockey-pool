@@ -15,9 +15,9 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from lib.jhp import *
 from lib.constants import *
-from lib.current_date import *
+from lib.date import *
+from lib.jhp import *
 import requests
 
 year = "20192020"
@@ -71,22 +71,20 @@ def create_players_table():
                 player_id = player['person']['id']
                 player_name = player['person']['fullName']
                 position = player['position']['code']
+                games = 0
+                goals = 0
+                assists = 0
+                wins = 0
+                shutouts = 0
+                points = 0
+                today = 0
+                selected = 0
 
-                if position != "G":
-                    games = 0
-                    goals = 0
-                    assists = 0
-                    wins = 0
-                    shutouts = 0
-                    points = 0
-                    today = 0
-                    selected = 0
-
-                    sql = "INSERT INTO players (player_id, player_name, team_id, team_abbr, team_name, games, goals, assists, wins, shutouts, points, today, selected, status_id) \
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                    val = (player_id, player_name, team_id, team_abbr, team_name, games, goals, assists, wins, shutouts, points, today, selected, status_id)
-                    cursor.execute(sql, val)
-                    db.commit()
+                sql = "INSERT INTO players (player_id, player_name, team_id, team_abbr, team_name, games, goals, assists, wins, shutouts, points, today, selected, status_id) \
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                val = (player_id, player_name, team_id, team_abbr, team_name, games, goals, assists, wins, shutouts, points, today, selected, status_id)
+                cursor.execute(sql, val)
+                db.commit()
 
     db.close()
 
@@ -112,7 +110,7 @@ def update_players_table(status):
         team_name = team[2]
         status_id = team[3]
 
-        if status_id == status:
+        if status_id == status or status == ALL:
             roster = requests.get("{}/teams/{}/roster".format(BASE, team_id)).json()
 
             if "roster" in roster:
@@ -120,42 +118,54 @@ def update_players_table(status):
                     player_id = player['person']['id']
                     player_name = player['person']['fullName']
                     position = player['position']['code']
+                    games = 0
+                    goals = 0
+                    assists = 0
+                    wins = 0
+                    shutouts = 0
+                    points = 0
+                    today = 0
+                    selected = 0
 
-                    if position != "G":
-                        games = 0
-                        goals = 0
-                        assists = 0
-                        wins = 0
-                        shutouts = 0
-                        points = 0
-                        today = 0
-                        selected = 0
+                    sql = "SELECT * FROM players WHERE player_id = '{id}'".format(id=player_id)
+                    cursor.execute(sql)
+                    fetch = cursor.fetchone()
 
-                        sql = "SELECT * FROM players WHERE player_id = '{id}'".format(id=player_id)
+                    if fetch is not None:
+                        stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season={}".format(BASE, player_id, year)).json()
+
+                        if stats['stats'][0]['splits']:
+                            games = stats['stats'][0]['splits'][0]['stat']['games']
+                            goals = stats['stats'][0]['splits'][0]['stat']['goals']
+                            assists = stats['stats'][0]['splits'][0]['stat']['assists']
+                            points = stats['stats'][0]['splits'][0]['stat']['points']
+
+                        sql = "UPDATE players SET games = {gp}, goals = {g}, assists = {a}, points = {p}, status_id = {s_id} WHERE player_id = '{p_id}'" \
+                        .format(gp=games, g=goals, a=assists, p=points, s_id=status_id, p_id=player_id)
                         cursor.execute(sql)
-                        fetch = cursor.fetchone()
+                        db.commit()
 
-                        if fetch is not None:
-                            stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season={}".format(BASE, player_id, year)).json()
+                        print(str(player_id) + " " + str(player_name).ljust(25, ' ') + " " + \
+                        str(team_id).rjust(2, ' ') + " " + str(team_abbr) + " " + \
+                        str(team_name).ljust(25, ' ') + " " + str(games).rjust(2, ' ') + " " + \
+                        str(goals).rjust(2, ' ') + " " + str(assists).rjust(2, ' ')  + " " +  \
+                        str(wins).rjust(2, ' ') + " " + str(shutouts).rjust(2, ' ')  + " " +  \
+                        str(points).rjust(2, ' ') + " " + str(today).rjust(2, ' ')  + " " +  \
+                        str(selected).rjust(2, ' ') + " " + str(status_id).rjust(2, ' '))
+                    else:
+                        sql = "INSERT INTO players (player_id, player_name, team_id, team_abbr, team_name, games, goals, assists, wins, shutouts, points, today, selected, status_id) \
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                        val = (player_id, player_name, team_id, team_abbr, team_name, games, goals, assists, wins, shutouts, points, today, selected, status_id)
+                        cursor.execute(sql, val)
+                        db.commit()
 
-                            if stats['stats'][0]['splits']:
-                                games = stats['stats'][0]['splits'][0]['stat']['games']
-                                goals = stats['stats'][0]['splits'][0]['stat']['goals']
-                                assists = stats['stats'][0]['splits'][0]['stat']['assists']
-                                points = stats['stats'][0]['splits'][0]['stat']['points']
-
-                            print(str(player_id) + " " + str(player_name).ljust(25, ' ') + " " + \
-                            str(team_id).rjust(2, ' ') + " " + str(team_abbr) + " " + \
-                            str(team_name).ljust(25, ' ') + " " + str(games).rjust(2, ' ') + " " + \
-                            str(goals).rjust(2, ' ') + " " + str(assists).rjust(2, ' ')  + " " +  \
-                            str(wins).rjust(2, ' ') + " " + str(shutouts).rjust(2, ' ')  + " " +  \
-                            str(points).rjust(2, ' ') + " " + str(today).rjust(2, ' ')  + " " +  \
-                            str(selected).rjust(2, ' ') + " " + str(status_id).rjust(2, ' '))
-
-                            sql = "UPDATE players SET games = {gp}, goals = {g}, assists = {a}, points = {p}, status_id = {s_id} WHERE player_id = '{p_id}'" \
-                            .format(gp=games, g=goals, a=assists, p=points, s_id=status_id, p_id=player_id)
-                            cursor.execute(sql)
-                            db.commit()
+                        print(str(player_id) + " " + str(player_name).ljust(25, ' ') + " " + \
+                        str(team_id).rjust(2, ' ') + " " + str(team_abbr) + " " + \
+                        str(team_name).ljust(25, ' ') + " " + str(games).rjust(2, ' ') + " " + \
+                        str(goals).rjust(2, ' ') + " " + str(assists).rjust(2, ' ')  + " " +  \
+                        str(wins).rjust(2, ' ') + " " + str(shutouts).rjust(2, ' ')  + " " +  \
+                        str(points).rjust(2, ' ') + " " + str(today).rjust(2, ' ')  + " " +  \
+                        str(selected).rjust(2, ' ') + " " + str(status_id).rjust(2, ' '))
 
     db.close()
 
