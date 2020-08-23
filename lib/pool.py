@@ -212,9 +212,9 @@ def update_points_change():
         sql = "SELECT {md} FROM pool_points WHERE entry_id = {id}".format(md=monthday, id=team[0])
         cursor.execute(sql)
         prev_points = cursor.fetchone()
-        print(prev_points[0])
+        #print(prev_points[0])
         points_change = curr_points - int(prev_points[0])
-        print(points_change)
+        #print(points_change)
         #sql = "UPDATE pool_stats SET points_change = {chg} WHERE entry_id = '{id}'".format(chg=points_change, id=team[0])
         #cursor.execute(sql)
         #db.commit()
@@ -276,7 +276,7 @@ def update_pool_team_stats(entry_name):
         print(player[0])
 
         if stats is not None:
-            curr_points += stats[10]
+            curr_points += stats[11]
 
     print()
 
@@ -340,6 +340,7 @@ def update_pool_points_table(*args):
             db.commit()
 
         sql = "UPDATE pool_points SET {col} = {pts} WHERE entry_id = '{id}'".format(col=monthday, pts=points, id=entry_id)
+        #print(points)
         cursor.execute(sql)
         db.commit()
 
