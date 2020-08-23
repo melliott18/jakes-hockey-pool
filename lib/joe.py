@@ -22,8 +22,24 @@ year = "20192020"       # we need to move this to config.py
 base_people_url = 'https://statsapi.web.nhl.com/api/v1/people/'
 stats_season_url = '/stats/?stats=statsSingleSeason&season='
 
+base_schedule_url = 'https://statsapi.web.nhl.com/api/v1/schedule'
+startDate = '2020-08-20'
+endDate = '2020-08-21'
+
+schedUrl = base_schedule_url + '?' + startDate + '&' + endDate
+
+
 base_goalie_url = 'https://api.nhle.com/stats/rest/en/goalie/'
 goalie_stats_query =  'summary?isAggregate=false&isGame=false&cayenneExp=gameTypeId=3%20and%20seasonId='
+
+
+def get_game_start():
+
+    schedResponse = requests.get(schedUrl)
+    schedJson = schedResponse.json()
+
+    print(schedJson['dates'][0]['games'][0]['gameDate'])
+
 
 
 def printPlayerData(ID):
@@ -78,10 +94,8 @@ def printPlayerData(ID):
 
             # losses are not required in our playersDB but I used it for error checking
             losses = GoalieStatsJson['data'][i]["losses"]
-            """
-            The following 4 lines should be deleted from the final version.
-            These were simply added for error checking.  The extra get slows the routine down considerably.
-            """
+          
+            # Retrieve teamId from people api
             people_url = base_people_url + str(playerId)
             goaliePeopleResponse = requests.get(people_url)
             goalieJson = goaliePeopleResponse.json()
@@ -89,7 +103,7 @@ def printPlayerData(ID):
             teamId = goalieJson['people'][0]["currentTeam"]["id"]
 
             # Need to look up the current status of the team in the teams table.
-            # Once i have that status, then I need to assign that status to the goalie.
+            # Once retreived the team status, it is assigned to the goalie status.
 
             print(i,":",fullName,"\t\t",teamName,"\t\t",playerId,"\t\t",goals,assists,wins,losses,shutouts,totalPts, sep=' ')
             '''
@@ -298,7 +312,7 @@ def main():
 
 #    printPlayerData(skaterId)
 
-  
+    '''
     create_nhl_teams_table() #creates teams table with no rows
     insert_nhl_teams()    #set status as DNQ
     # Shouldn't we call update_nhl_teams.py at this point to set the teams status with the latest info?
@@ -307,6 +321,9 @@ def main():
 #    init_goalie_pTable()
 
     update_goalie_pTable()
+    '''
+
+    get_game_start()
 
 if __name__ == '__main__':
     main()
