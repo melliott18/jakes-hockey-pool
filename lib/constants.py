@@ -9,6 +9,7 @@ R3_ELIM = 3 # team/player was eliminated from the conference finals
 R4_ELIM = 4 # team/player was eliminated from the SC finals
 ACTIVE  = 5   # team/player is potential or actively qualified for playoff participation
 ACT_INJ = 6   # player is actively qualified to participate but is injured
+ALL = "ALL"
 
 '''
     Note, in the weeks leading up to the playoffs, all teams (16+) that have

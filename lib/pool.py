@@ -14,9 +14,10 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
+from lib.date import *
 from lib.jhp import *
-from lib.skaters import *
-from lib.current_date import *
+from lib.players import *
+from lib.stats import *
 import requests
 
 def create_entry_table():
@@ -138,6 +139,114 @@ def add_player(entry_name, player_id, player_name):
     
     db.close()
 
+def set_prev_rank_to_curr_rank():
+    db = db_connect("jhpDB")
+    cursor = db.cursor(buffered=True)
+    sql = "SELECT entry_id, curr_rank FROM pool_stats"
+    cursor.execute(sql)
+    ranks = cursor.fetchall()
+
+    for rank in ranks:
+        sql = "UPDATE pool_stats SET prev_rank = {rank} WHERE entry_id = '{id}'".format(rank=rank[1], id=rank[0])
+        cursor.execute(sql)
+        db.commit()
+
+    db.close()
+
+def update_pool_points_rankings():
+    db = db_connect("jhpDB")
+    cursor = db.cursor(buffered=True)
+    stats = get_pool_stats("points", "DESC")
+
+    for i, stat in enumerate(stats, start=1):
+        sql = "UPDATE pool_stats SET curr_rank = {rank} WHERE entry_id = '{id}'".format(rank=i, id=stat[0])
+        cursor.execute(sql)
+        db.commit()
+    
+    db.close()
+
+def update_active_player_count():
+    db = db_connect("jhpDB")
+    cursor = db.cursor(buffered=True)
+    sql = "SELECT entry_id, entry_name FROM pool_stats"
+    cursor.execute(sql)
+    teams = cursor.fetchall()
+
+    for team in teams:
+        sql = "SELECT player_id FROM {table}".format(table=team[1])
+        cursor.execute(sql)
+        players = cursor.fetchall()
+        active_count = 0
+
+        for player in players:
+            sql = "SELECT status_id FROM players WHERE player_id = '{id}'".format(id=player[0])
+            cursor.execute(sql)
+            status_id = cursor.fetchone()
+            if status_id is not None and status_id[0] == 5:
+                active_count += 1
+
+        sql = "UPDATE pool_stats SET num_act_players = {num} WHERE entry_id = '{id}'".format(num=active_count, id=team[0])
+        cursor.execute(sql)
+        db.commit()
+
+    db.close()
+
+def update_points_change():
+    db = db_connect("jhpDB")
+    cursor = db.cursor(buffered=True)
+    sql = "SELECT entry_id, points FROM pool_stats"
+    cursor.execute(sql)
+    teams = cursor.fetchall()
+    monthday = get_current_monthday()
+    sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = \
+    'jhpDB' AND TABLE_NAME = 'pool_points' AND COLUMN_NAME = \
+    '{col}'".format(col=monthday)
+    cursor.execute(sql)
+    fetch = cursor.fetchone()
+
+    if fetch is None:
+        update_pool_points_table()
+
+    for team in teams:
+        curr_points = team[1]
+        sql = "SELECT {md} FROM pool_points WHERE entry_id = {id}".format(md=monthday, id=team[0])
+        cursor.execute(sql)
+        prev_points = cursor.fetchone()
+        #print(prev_points[0])
+        points_change = curr_points - int(prev_points[0])
+        #print(points_change)
+        #sql = "UPDATE pool_stats SET points_change = {chg} WHERE entry_id = '{id}'".format(chg=points_change, id=team[0])
+        #cursor.execute(sql)
+        #db.commit()
+
+    db.close()
+
+def update_dud_count():
+    db = db_connect("jhpDB")
+    cursor = db.cursor(buffered=True)
+    sql = "SELECT entry_id, entry_name FROM pool_stats"
+    cursor.execute(sql)
+    teams = cursor.fetchall()
+
+    for team in teams:
+        sql = "SELECT player_id FROM {table}".format(table=team[1])
+        cursor.execute(sql)
+        players = cursor.fetchall()
+        dud_count = 0
+
+        for player in players:
+            sql = "SELECT points FROM players WHERE player_id = '{id}'".format(id=player[0])
+            cursor.execute(sql)
+            points = cursor.fetchone()
+            if points is not None and points[0] == 0:
+                dud_count += 1
+
+        sql = "UPDATE pool_stats SET num_duds = {num} WHERE entry_id = '{id}'".format(num=dud_count, id=team[0])
+        cursor.execute(sql)
+        db.commit()
+
+    db.close()
+
 def update_pool_entry(entry_name, column, value):
     db = db_connect("jhpDB")
     cursor = db.cursor()
@@ -156,16 +265,20 @@ def update_pool_team_stats(entry_name):
     sql = "SELECT player_id FROM {entry}".format(entry=pool_team_stats[3])
     cursor.execute(sql)
     players = cursor.fetchall()
-    prev_points = pool_team_stats[5]
+    prev_points = 0
+    #curr_points = pool_team_stats[5]
     curr_points = 0
     change = 0
 
     for player in players:
         player_id = player[0]
-        stats = get_skater_stats(player_id)
+        stats = get_player_stats(player_id)
+        print(player[0])
 
         if stats is not None:
-            curr_points += stats[6]
+            curr_points += stats[11]
+
+    print()
 
     change = curr_points - prev_points
     #sql = "UPDATE pool_stats SET goals = {g}, assists = {a}, wins = {w}, shutouts = {so}, points = {p}, status_id = {si} WHERE team_name = '{team}'" \
@@ -186,14 +299,22 @@ def update_all_pool_team_stats():
         update_pool_team_stats(entry_name)
 
     db.close()
+    update_active_player_count()
+    update_points_change()
+    update_dud_count()
 
-def update_pool_points_table():
+def update_pool_points_table(*args):
     db = db_connect("jhpDB")
     cursor = db.cursor(buffered=True)
     sql = "SELECT * FROM pool_stats"
     cursor.execute(sql)
     teams = cursor.fetchall()
-    monthday = get_current_monthday()
+
+    if len(args) == 0:
+        monthday = get_current_monthday()
+    else:
+        monthday = args[0]
+
     sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = \
     'jhpDB' AND TABLE_NAME = 'pool_points' AND COLUMN_NAME = \
     '{col}'".format(col=monthday)
@@ -219,18 +340,24 @@ def update_pool_points_table():
             db.commit()
 
         sql = "UPDATE pool_points SET {col} = {pts} WHERE entry_id = '{id}'".format(col=monthday, pts=points, id=entry_id)
+        #print(points)
         cursor.execute(sql)
         db.commit()
 
     db.close()
 
-def update_pool_rankings_table():
+def update_pool_rankings_table(*args):
     db = db_connect("jhpDB")
     cursor = db.cursor(buffered=True)
     sql = "SELECT * FROM pool_stats"
     cursor.execute(sql)
     teams = cursor.fetchall()
-    monthday = get_current_monthday()
+
+    if len(args) == 0:
+        monthday = get_current_monthday()
+    else:
+        monthday = args[0]
+
     sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = \
     'jhpDB' AND TABLE_NAME = 'pool_rankings' AND COLUMN_NAME = \
     '{col}'".format(col=monthday)
@@ -260,191 +387,3 @@ def update_pool_rankings_table():
         db.commit()
 
     db.close()
-
-def get_pool_points():
-    db = db_connect("jhpDB")
-    cursor = db.cursor(buffered=True)
-    sql = "SELECT entry_id, entry_name, points FROM pool_stats"
-    cursor.execute(sql)
-    stats = cursor.fetchall()
-    db.close()
-    return stats
-
-def get_pool_points_ordered():
-    db = db_connect("jhpDB")
-    cursor = db.cursor(buffered=True)
-    sql = "SELECT entry_id, entry_name, points FROM pool_stats ORDER BY points DESC"
-    cursor.execute(sql)
-    stats = cursor.fetchall()
-    db.close()
-    return stats
-
-def set_prev_rank_to_curr_rank():
-    db = db_connect("jhpDB")
-    cursor = db.cursor(buffered=True)
-    sql = "SELECT entry_id, curr_rank FROM pool_stats"
-    cursor.execute(sql)
-    ranks = cursor.fetchall()
-
-    for rank in ranks:
-        sql = "UPDATE pool_stats SET prev_rank = {rank} WHERE entry_id = '{id}'".format(rank=rank[1], id=rank[0])
-        cursor.execute(sql)
-        db.commit()
-
-    db.close()
-
-def update_pool_points_rankings():
-    db = db_connect("jhpDB")
-    cursor = db.cursor(buffered=True)
-    stats = get_pool_points_ordered()
-
-    for i, stat in enumerate(stats, start=1):
-        sql = "UPDATE pool_stats SET curr_rank = {rank} WHERE entry_id = '{id}'".format(rank=i, id=stat[0])
-        cursor.execute(sql)
-        db.commit()
-    
-    db.close()
-
-def update_active_player_count():
-    db = db_connect("jhpDB")
-    cursor = db.cursor(buffered=True)
-    sql = "SELECT entry_id, entry_name FROM pool_stats"
-    cursor.execute(sql)
-    teams = cursor.fetchall()
-
-    for team in teams:
-        sql = "SELECT player_id FROM {table}".format(table=team[1])
-        cursor.execute(sql)
-        players = cursor.fetchall()
-        active_count = 0
-
-        for player in players:
-            sql = "SELECT status_id FROM skaters WHERE player_id = '{id}'".format(id=player[0])
-            cursor.execute(sql)
-            status_id = cursor.fetchone()
-            if status_id is not None and status_id[0] == 5:
-                active_count += 1
-
-        sql = "UPDATE pool_stats SET num_act_players = {num} WHERE entry_id = '{id}'".format(num=active_count, id=team[0])
-        cursor.execute(sql)
-        db.commit()
-
-    db.close()
-
-def update_points_change():
-    db = db_connect("jhpDB")
-    cursor = db.cursor(buffered=True)
-    sql = "SELECT entry_id, points FROM pool_stats"
-    cursor.execute(sql)
-    teams = cursor.fetchall()
-    monthday = get_current_monthday()
-
-    for team in teams:
-        curr_points = team[1]
-        sql = "SELECT {md} FROM pool_points WHERE entry_id = {id}".format(md=monthday, id=team[0])
-        cursor.execute(sql)
-        prev_points = cursor.fetchone()
-        points_change = curr_points - int(prev_points[0])
-        sql = "UPDATE pool_stats SET points_change = {chg} WHERE entry_id = '{id}'".format(chg=points_change, id=team[0])
-        cursor.execute(sql)
-        db.commit()
-
-    db.close()
-
-def update_dud_count():
-    db = db_connect("jhpDB")
-    cursor = db.cursor(buffered=True)
-    sql = "SELECT entry_id, entry_name FROM pool_stats"
-    cursor.execute(sql)
-    teams = cursor.fetchall()
-
-    for team in teams:
-        sql = "SELECT player_id FROM {table}".format(table=team[1])
-        cursor.execute(sql)
-        players = cursor.fetchall()
-        dud_count = 0
-
-        for player in players:
-            sql = "SELECT points FROM skaters WHERE player_id = '{id}'".format(id=player[0])
-            cursor.execute(sql)
-            points = cursor.fetchone()
-            if points is not None and points[0] == 0:
-                dud_count += 1
-
-        sql = "UPDATE pool_stats SET num_duds = {num} WHERE entry_id = '{id}'".format(num=dud_count, id=team[0])
-        cursor.execute(sql)
-        db.commit()
-
-    db.close()
-    
-def get_pool_stats(column, order):
-    db = db_connect("jhpDB")
-    cursor = db.cursor(buffered=True)
-    sql = "SELECT * FROM pool_stats ORDER BY {col} {ord}".format(col=column, ord=order)
-    cursor.execute(sql)
-    stats = cursor.fetchall()
-    return stats
-
-def get_pool_stats_ordered():
-    db = db_connect("jhpDB")
-    cursor = db.cursor(buffered=True)
-    sql = "SELECT * FROM pool_stats ORDER BY points DESC"
-    cursor.execute(sql)
-    stats = cursor.fetchall()
-    db.close()
-    return stats
-
-def print_pool_stats(column, order):
-    stats = get_pool_stats(column, order)
-
-    print("+----------------------------------------------------------------------------------+")
-    print("| Rank | Prev |              Team              | Active | Pts | Chg | Duds | Prize |")
-
-    for row in stats:
-        rank = str(row[1]).rjust(4, ' ')
-        prev = str(row[2]).rjust(4, ' ')
-        team = str(row[3]).ljust(30, ' ')
-        active = str(row[4]).rjust(6, ' ')
-        points = str(row[5]).rjust(3, ' ')
-        change = str(row[6]).rjust(3, ' ')
-        duds = str(row[7]).rjust(4, ' ')
-        prize = str(row[8]).rjust(5, ' ')
-        print("+----------------------------------------------------------------------------------+")
-        print("| " + rank + " | " + prev + " | " + team + " | " + active + " | " + points + " | " + change + " | " + duds + " | " + prize + " |")
-
-    print("+----------------------------------------------------------------------------------+")
-
-
-def print_pool_stats_ordered():
-    stats = get_pool_stats_ordered()
-
-    print("+----------------------------------------------------------------------------------+")
-    print("| Rank | Prev |              Team              | Active | Pts | Chg | Duds | Prize |")
-
-    for row in stats:
-        rank = str(row[1]).rjust(4, ' ')
-        prev = str(row[2]).rjust(4, ' ')
-        team = str(row[3]).ljust(30, ' ')
-        active = str(row[4]).rjust(6, ' ')
-        points = str(row[5]).rjust(3, ' ')
-        change = str(row[6]).rjust(3, ' ')
-        duds = str(row[7]).rjust(4, ' ')
-        prize = str(row[8]).rjust(5, ' ')
-        print("+----------------------------------------------------------------------------------+")
-        print("| " + rank + " | " + prev + " | " + team + " | " + active + " | " + points + " | " + change + " | " + duds + " | " + prize + " |")
-
-    print("+----------------------------------------------------------------------------------+")
-
-def print_pool_points():
-    stats = get_pool_points()
-
-    for row in stats:
-        print(str(row[1]) + " " + str(row[2]))
-
-def print_pool_points_ordered():
-    stats = get_pool_points_ordered()
-
-    for row in stats:
-        team = str(row[1]).ljust(20, ' ')
-        points = str(row[2])
-        print(team + " " + points)
