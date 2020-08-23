@@ -25,5 +25,5 @@ from lib.pool import *
 #  Call update_nhl_teams.py at this point to set the teams status with the latest info
 
 create_players_table() # creates and initializes skaters with pts,etc  = 0, and sets player status as same as team table status
-#update_players_table() # updates skaters with latest api stats.
+update_players_table(ALL) # updates skaters with latest api stats. (ALL updates entire NHL players .. DNQ, Eliminated,  ACTIVE - players still playing)
 #create_pool()
