@@ -198,16 +198,26 @@ def update_points_change():
     cursor.execute(sql)
     teams = cursor.fetchall()
     monthday = get_current_monthday()
+    sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = \
+    'jhpDB' AND TABLE_NAME = 'pool_points' AND COLUMN_NAME = \
+    '{col}'".format(col=monthday)
+    cursor.execute(sql)
+    fetch = cursor.fetchone()
+
+    if fetch is None:
+        update_pool_points_table()
 
     for team in teams:
         curr_points = team[1]
         sql = "SELECT {md} FROM pool_points WHERE entry_id = {id}".format(md=monthday, id=team[0])
         cursor.execute(sql)
         prev_points = cursor.fetchone()
+        print(prev_points[0])
         points_change = curr_points - int(prev_points[0])
-        sql = "UPDATE pool_stats SET points_change = {chg} WHERE entry_id = '{id}'".format(chg=points_change, id=team[0])
-        cursor.execute(sql)
-        db.commit()
+        print(points_change)
+        #sql = "UPDATE pool_stats SET points_change = {chg} WHERE entry_id = '{id}'".format(chg=points_change, id=team[0])
+        #cursor.execute(sql)
+        #db.commit()
 
     db.close()
 
@@ -293,13 +303,18 @@ def update_all_pool_team_stats():
     update_points_change()
     update_dud_count()
 
-def update_pool_points_table():
+def update_pool_points_table(*args):
     db = db_connect("jhpDB")
     cursor = db.cursor(buffered=True)
     sql = "SELECT * FROM pool_stats"
     cursor.execute(sql)
     teams = cursor.fetchall()
-    monthday = get_current_monthday()
+
+    if len(args) == 0:
+        monthday = get_current_monthday()
+    else:
+        monthday = args[0]
+
     sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = \
     'jhpDB' AND TABLE_NAME = 'pool_points' AND COLUMN_NAME = \
     '{col}'".format(col=monthday)
@@ -330,13 +345,18 @@ def update_pool_points_table():
 
     db.close()
 
-def update_pool_rankings_table():
+def update_pool_rankings_table(*args):
     db = db_connect("jhpDB")
     cursor = db.cursor(buffered=True)
     sql = "SELECT * FROM pool_stats"
     cursor.execute(sql)
     teams = cursor.fetchall()
-    monthday = get_current_monthday()
+
+    if len(args) == 0:
+        monthday = get_current_monthday()
+    else:
+        monthday = args[0]
+
     sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = \
     'jhpDB' AND TABLE_NAME = 'pool_rankings' AND COLUMN_NAME = \
     '{col}'".format(col=monthday)
