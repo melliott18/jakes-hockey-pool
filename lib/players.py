@@ -97,8 +97,89 @@ def create_player_points_table():
 
     db_create_table("jhpDB", sql)
 
+def update_goalies_in_players(status):
+    global year
+
+    base_goalie_url = 'https://api.nhle.com/stats/rest/en/goalie/'
+    goalie_stats_query =  'summary?isAggregate=false&isGame=false&cayenneExp=gameTypeId=3%20and%20seasonId='
+    base_people_url = 'https://statsapi.web.nhl.com/api/v1/people/'
+
+    # update goalies
+    db2 = db_connect("jhpDB")
+    cursor2 = db2.cursor()
+    cursor2.execute("SELECT * FROM nhl_teams")
+    teams = cursor2.fetchall()
+
+    teamDict = {}
+
+    for team in teams:
+        team_id = team[0]
+        team_abbr = team[1]
+        team_name = team[2]
+        status_id = team[3]
+        teamDict[team_id] = (team_name,status_id) #create a team dictionary keyed by team_id, values are tuples (name,status)
+
+    goalie_url = base_goalie_url + goalie_stats_query + year
+    GoalieStatsResponse = requests.get(goalie_url)
+    print(GoalieStatsResponse)
+
+#   Gets the complete list of active goalie stats
+    GoalieStatsJson = GoalieStatsResponse.json()
+
+    numGoalie = GoalieStatsJson['total']
+    print(numGoalie,":","Goalie Name","\t\t","Team Name","\t\t","playerId\t\t","G A W L S P S")
+    
+    '''
+        Basic algorithm: From the nhle-api get the JSON of playoff goalies. Traverse this JSON pulling out each goalie's
+        player_id and then looking up their team_id from the apistat.  Once we have the team_id, go to the teams table 
+        and determine the team status.  With the stats from nhle-api and the status from teams, update the goalie stats 
+        table.
+    '''
+    for i in range(numGoalie):
+        try:
+            fullName = GoalieStatsJson['data'][i]["goalieFullName"]
+            playerId = GoalieStatsJson['data'][i]["playerId"]
+            goals = GoalieStatsJson['data'][i]["goals"]
+            assists = GoalieStatsJson['data'][i]["assists"]
+            wins = GoalieStatsJson['data'][i]["wins"]
+            shutouts = GoalieStatsJson['data'][i]["shutouts"]
+            totalPts = GoalieStatsJson['data'][i]["goals"]+GoalieStatsJson['data'][i]["assists"]+ 2*(GoalieStatsJson['data'][i]["wins"])+GoalieStatsJson['data'][i]["shutouts"]
+
+            # losses are not required in our playersDB but I used it for error checking
+            losses = GoalieStatsJson['data'][i]["losses"]
+
+            # Retreive teamId from playerId
+            people_url = base_people_url + str(playerId)
+            goaliePeopleResponse = requests.get(people_url)
+            goalieJson = goaliePeopleResponse.json()
+            teamName = goalieJson['people'][0]["currentTeam"]["name"]
+            teamId = goalieJson['people'][0]["currentTeam"]["id"]
+
+            #retreive team status and assign to player status variable
+            pStatus = teamDict[teamId][1]
+
+            print(i,":",fullName,"\t\t",teamName,"\t\t",playerId,"\t\t",goals,assists,wins,losses,shutouts,totalPts,pStatus,sep=' ')
+                    
+            sql = "UPDATE players SET goals = {g}, assists = {a}, wins= {w}, shutouts = {so}, points = {tp}, status_id = {st} WHERE player_id = '{p_id}'" \
+                    .format(g=goals, a=assists, w=wins, so=shutouts, tp=totalPts, st = pStatus, p_id=playerId)
+
+            cursor2.execute(sql)
+            db2.commit()
+        
+        # api.nhle typically accurately enters the number of entries in the JSON, but I have seen errors.
+        except IndexError:
+            print("IndexError: i=",i)
+            continue
+
+
+    db2.close()
+
 def update_players_table(status):
     global year
+    
+    update_goalies_in_players(status)
+
+    # update skaters
     db = db_connect("jhpDB")
     cursor = db.cursor(buffered=True)
     cursor.execute("SELECT * FROM nhl_teams")
@@ -166,6 +247,7 @@ def update_players_table(status):
                         str(today).rjust(2, ' ')  + " " +  str(selected).rjust(2, ' ') + " " + str(status_id).rjust(2, ' '))
 
     db.close()
+
 
 def update_player_statuses():
     global year

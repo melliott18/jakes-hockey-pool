@@ -67,7 +67,7 @@ def update_nhl_team_status(team_id, status_id):
     sql = "UPDATE nhl_teams SET status_id = {status} WHERE team_id = '{team}'".format(status=status_id, team=team_id)
     cursor.execute(sql)
     db.commit()
-    sql = "UPDATE skaters SET status_id = {status} WHERE team_id = '{team}'".format(status=status_id, team=team_id)
+    sql = "UPDATE players SET status_id = {status} WHERE team_id = '{team}'".format(status=status_id, team=team_id)
     cursor.execute(sql)
     db.commit()
     db.close()
