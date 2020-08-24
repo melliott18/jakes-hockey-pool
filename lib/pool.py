@@ -191,13 +191,18 @@ def update_active_player_count():
 
     db.close()
 
-def update_points_change():
+def update_points_change(*args):
     db = db_connect("jhpDB")
     cursor = db.cursor(buffered=True)
     sql = "SELECT entry_id, points FROM pool_stats"
     cursor.execute(sql)
     teams = cursor.fetchall()
-    monthday = get_current_monthday()
+
+    if len(args) == 0:
+        monthday = get_yesterday_monthday()
+    else:
+        monthday = get_variable_monthday(args[0])
+
     sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = \
     'jhpDB' AND TABLE_NAME = 'pool_points' AND COLUMN_NAME = \
     '{col}'".format(col=monthday)
@@ -212,15 +217,16 @@ def update_points_change():
         sql = "SELECT {md} FROM pool_points WHERE entry_id = {id}".format(md=monthday, id=team[0])
         cursor.execute(sql)
         prev_points = cursor.fetchone()
+        #print(curr_points)
         #print(prev_points[0])
         try:
             points_change = curr_points - int(prev_points[0])
         except:
             points_change = curr_points
         #print(points_change)
-        #sql = "UPDATE pool_stats SET points_change = {chg} WHERE entry_id = '{id}'".format(chg=points_change, id=team[0])
-        #cursor.execute(sql)
-        #db.commit()
+        sql = "UPDATE pool_stats SET points_change = {chg} WHERE entry_id = '{id}'".format(chg=points_change, id=team[0])
+        cursor.execute(sql)
+        db.commit()
 
     db.close()
 
@@ -291,19 +297,25 @@ def update_pool_team_stats(entry_name):
     db.commit()
     db.close()
 
-def update_all_pool_team_stats():
+def update_all_pool_team_stats(*args):
     db = db_connect("jhpDB")
     cursor = db.cursor(buffered=True)
     sql = "SELECT entry_name FROM pool_entries"
     cursor.execute(sql)
     teams = cursor.fetchall()
+
     for team in teams:
         entry_name = team[0]
         update_pool_team_stats(entry_name)
 
     db.close()
+
+    if len(args) == 0:
+        update_points_change()
+    else:
+        update_points_change(args[0])
+
     update_active_player_count()
-    update_points_change()
     update_dud_count()
 
 def update_pool_points_table(*args):
