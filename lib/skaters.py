@@ -17,7 +17,7 @@ sys.path.insert(0, parent_dir)
 
 from lib.jhp import *
 from lib.constants import *
-from lib.current_date import *
+from lib.date import *
 import requests
 
 year = "20192020"

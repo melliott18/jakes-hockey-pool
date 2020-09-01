@@ -97,7 +97,7 @@ def create_player_points_table():
 
     db_create_table("jhpDB", sql)
 
-def update_goalies_in_players(status):
+def update_goalie_stats(status):
     global year
 
     base_goalie_url = 'https://api.nhle.com/stats/rest/en/goalie/'
@@ -121,13 +121,13 @@ def update_goalies_in_players(status):
 
     goalie_url = base_goalie_url + goalie_stats_query + year
     GoalieStatsResponse = requests.get(goalie_url)
-    print(GoalieStatsResponse)
+    #print(GoalieStatsResponse)
 
 #   Gets the complete list of active goalie stats
     GoalieStatsJson = GoalieStatsResponse.json()
 
     numGoalie = GoalieStatsJson['total']
-    print(numGoalie,":","Goalie Name","\t\t","Team Name","\t\t","playerId\t\t","G A W L S P S")
+    #print(numGoalie,":","Goalie Name","\t\t","Team Name","\t\t","playerId\t\t","G A W L S P S")
     
     '''
         Basic algorithm: From the nhle-api get the JSON of playoff goalies. Traverse this JSON pulling out each goalie's
@@ -158,7 +158,7 @@ def update_goalies_in_players(status):
             #retreive team status and assign to player status variable
             pStatus = teamDict[teamId][1]
 
-            print(i,":",fullName,"\t\t",teamName,"\t\t",playerId,"\t\t",goals,assists,wins,losses,shutouts,totalPts,pStatus,sep=' ')
+            #print(i,":",fullName,"\t\t",teamName,"\t\t",playerId,"\t\t",goals,assists,wins,losses,shutouts,totalPts,pStatus,sep=' ')
                     
             sql = "UPDATE players SET goals = {g}, assists = {a}, wins= {w}, shutouts = {so}, points = {tp}, status_id = {st} WHERE player_id = '{p_id}'" \
                     .format(g=goals, a=assists, w=wins, so=shutouts, tp=totalPts, st = pStatus, p_id=playerId)
@@ -168,7 +168,7 @@ def update_goalies_in_players(status):
         
         # api.nhle typically accurately enters the number of entries in the JSON, but I have seen errors.
         except IndexError:
-            print("IndexError: i=",i)
+            #print("IndexError: i=",i)
             continue
 
 
@@ -177,7 +177,7 @@ def update_goalies_in_players(status):
 def update_players_table(status):
     global year
     
-    update_goalies_in_players(status)
+    update_goalie_stats(status)
 
     # update skaters
     db = db_connect("jhpDB")
@@ -202,18 +202,19 @@ def update_players_table(status):
                     sql = "SELECT * FROM players WHERE player_id = '{id}'".format(id=player_id)
                     cursor.execute(sql)
                     fetch = cursor.fetchone()
-                    player_name = fetch[1]
-                    player_type = fetch[2]
-                    games = fetch[6]
-                    goals = fetch[7]
-                    assists = fetch[8]
-                    wins = fetch[9]
-                    shutouts = fetch[10]
-                    points = fetch[11]
-                    today = fetch[12]
-                    selected = fetch[13]
 
                     if fetch is not None:
+                        player_name = fetch[1]
+                        player_type = fetch[2]
+                        games = fetch[6]
+                        goals = fetch[7]
+                        assists = fetch[8]
+                        wins = fetch[9]
+                        shutouts = fetch[10]
+                        points = fetch[11]
+                        today = fetch[12]
+                        selected = fetch[13]
+
                         if player_type == "Skater":
                             stats = requests.get("{}/people/{}/stats?stats=statsSingleSeasonPlayoffs&season={}".format(BASE, player_id, year)).json()
 
@@ -288,7 +289,7 @@ def update_player_statuses():
 def update_player_points_table():
     db = db_connect("jhpDB")
     cursor = db.cursor(buffered=True)
-    sql = "SELECT * FROM skaters"
+    sql = "SELECT * FROM players"
     cursor.execute(sql)
     teams = cursor.fetchall()
     monthday = get_current_monthday()
@@ -312,7 +313,7 @@ def update_player_points_table():
 
         if fetch is None:
             sql = "INSERT INTO player_points (entry_id, {col}) VALUES (%s, %s)".format(col=monthday)
-            val = (entry_id, points)
+            val = (player_id, points)
             cursor.execute(sql, val)
             db.commit()
 

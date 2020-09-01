@@ -16,5 +16,5 @@ sys.path.insert(0, parent_dir)
 
 from lib.players import *
 
-create_players_table()
+#create_players_table()
 update_players_table(ACTIVE)

@@ -210,7 +210,7 @@ def update_points_change(*args):
     fetch = cursor.fetchone()
 
     if fetch is None:
-        update_pool_points_table()
+        update_pool_points_table(args[0])
 
     for team in teams:
         curr_points = team[1]
@@ -328,7 +328,7 @@ def update_pool_points_table(*args):
     if len(args) == 0:
         monthday = get_current_monthday()
     else:
-        monthday = args[0]
+        monthday = get_variable_monthday(args[0])
 
     sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = \
     'jhpDB' AND TABLE_NAME = 'pool_points' AND COLUMN_NAME = \
@@ -371,7 +371,7 @@ def update_pool_rankings_table(*args):
     if len(args) == 0:
         monthday = get_current_monthday()
     else:
-        monthday = args[0]
+        monthday = get_variable_monthday(args[0])
 
     sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = \
     'jhpDB' AND TABLE_NAME = 'pool_rankings' AND COLUMN_NAME = \

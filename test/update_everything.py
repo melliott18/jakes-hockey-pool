@@ -18,8 +18,8 @@ from lib.players import *
 from lib.pool import *
 
 #set_prev_rank_to_curr_rank()
-update_player_statuses()
-#update_players_table(ACTIVE)
+#update_player_statuses()
+update_players_table(ACTIVE)
 #update_players_table(ALL)
 update_all_pool_team_stats()
 update_pool_points_rankings()

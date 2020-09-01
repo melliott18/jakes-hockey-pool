@@ -15,7 +15,7 @@ sys.path.insert(0, parent_dir)
 
 from lib.jhp import *
 from lib.players import *
-from lib.pool import *
+#from lib.pool import *
 
 def get_pool_stats(column, order):
     db = db_connect("jhpDB")
@@ -71,13 +71,13 @@ def print_pool_team_stats(entry_name):
         stats = get_player_stats(player_id)
         #print(stats)
         player = str(stats[1]).ljust(25, ' ')
-        team = str(stats[3]).ljust(4, ' ')
-        games = str(stats[5]).rjust(5, ' ')
-        goals = str(stats[6]).rjust(5, ' ')
-        assists = str(stats[7]).rjust(7, ' ')
-        wins = str(stats[8]).rjust(4, ' ')
-        shutouts = str(stats[9]).rjust(8, ' ')
-        points = str(stats[10]).rjust(6, ' ')
+        team = str(stats[4]).ljust(4, ' ')
+        games = str(stats[6]).rjust(5, ' ')
+        goals = str(stats[7]).rjust(5, ' ')
+        assists = str(stats[8]).rjust(7, ' ')
+        wins = str(stats[9]).rjust(4, ' ')
+        shutouts = str(stats[10]).rjust(8, ' ')
+        points = str(stats[11]).rjust(6, ' ')
         print("+---------------------------------------------------------------------------------------+")
         print("| " + player + " | " + team + " | " + games + " | " + goals + " | " + assists + " | " + wins + " | " + shutouts + " | " + points + " |")
 
