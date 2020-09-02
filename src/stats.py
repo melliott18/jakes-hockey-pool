@@ -13,9 +13,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from lib.jhp import *
-from lib.players import *
-#from lib.pool import *
+from src.jhp import *
+from src.players import *
 
 def get_pool_stats(column, order):
     db = db_connect("jhpDB")

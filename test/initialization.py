@@ -14,9 +14,9 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from lib.nhl_teams import *
-from lib.players import *
-from lib.pool import *
+from src.nhl_teams import *
+from src.players import *
+from src.pool import *
 
 #db_create("jhpDB")
 #create_nhl_teams_table() #creates teams table with no rows

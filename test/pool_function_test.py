@@ -13,7 +13,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from lib.pool import *
+from src.pool import *
 
 #set_prev_rank_to_curr_rank()
 #update_active_player_count()

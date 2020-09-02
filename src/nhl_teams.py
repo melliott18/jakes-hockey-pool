@@ -15,8 +15,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from lib.constants import *
-from lib.jhp import *
+from src.constants import *
+from src.jhp import *
 import requests
 
 def create_nhl_teams_table():
@@ -54,7 +54,7 @@ def update_nhl_teams_table(team_id, column, value):
     cursor.execute(sql)
     db.commit()
 
-    if column == status_id:
+    if column == "status_id":
         sql = "UPDATE players SET status_id = {status} WHERE team_id = '{team}'".format(status=value, team=team_id)
         cursor.execute(sql)
         db.commit()

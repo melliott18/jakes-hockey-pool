@@ -9,11 +9,11 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from lib.jhp import *
-from lib.constants import *
-from lib.nhl_teams import *
-from lib.skaters import *
-from lib.pool import *
+from src.jhp import *
+from src.constants import *
+from src.nhl_teams import *
+from src.players import *
+from src.pool import *
 
 # 8466138 = Joe Thornton
 skaterId = str(8466138)
@@ -120,10 +120,10 @@ def printPlayerData(ID):
             pcursor.execute(sql, val)
             pdb.commit()
             '''
-            sql = "UPDATE skaters SET goals = {g}, assists = {a}, points = {p}, status_id = {s_id} WHERE player_id = '{p_id}'" \
-                    .format(g=goals, a=assists, p=points, s_id=status_id, p_id=player_id)
-            cursor.execute(sql)
-            db.commit()
+            #sql = "UPDATE players SET goals = {g}, assists = {a}, points = {p}, status_id = {s_id} WHERE player_id = '{p_id}'" \
+            #        .format(g=goals, a=assists, p=points, s_id=status_id, p_id=player_id)
+            #cursor.execute(sql)
+            #db.commit()
 
 
         # api.nhle typically accurately enters the number of entries in the JSON, but I have seen errors.

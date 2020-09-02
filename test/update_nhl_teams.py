@@ -17,8 +17,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from lib.nhl_teams import *
-from lib.constants import *
+from src.nhl_teams import *
+from src.constants import *
 
 # Teams to be eliminated
 # First parameter: team_id
@@ -29,7 +29,7 @@ update_nhl_team_status(2, ACTIVE)   # New York Islanders
 update_nhl_team_status(3, DNQ)      # New York Rangers
 update_nhl_team_status(4, ACTIVE)   # Philedelphia Flyers
 update_nhl_team_status(5, DNQ)      # Pittsburgh Penguins
-update_nhl_team_status(6, ACTIVE)   # Boston Bruins
+update_nhl_team_status(6, R2_ELIM)   # Boston Bruins
 update_nhl_team_status(7, DNQ)      # Buffalo Sabres
 update_nhl_team_status(8, R1_ELIM)   # Montreal Canadiens
 update_nhl_team_status(9, DNQ)      # Ottawa Senators

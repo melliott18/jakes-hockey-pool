@@ -14,7 +14,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from lib.pool import *
+from src.pool import *
 
 #update_all_pool_team_stats()
 #update_pool_points_table("_0821")

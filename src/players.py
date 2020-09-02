@@ -15,9 +15,9 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from lib.constants import *
-from lib.date import *
-from lib.jhp import *
+from src.constants import *
+from src.date import *
+from src.jhp import *
 import requests
 
 year = "20192020"
