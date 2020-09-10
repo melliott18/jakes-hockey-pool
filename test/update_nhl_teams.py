@@ -27,7 +27,7 @@ from src.constants import *
 update_nhl_team_status(1, DNQ)      # New Jersey Devils
 update_nhl_team_status(2, ACTIVE)   # New York Islanders
 update_nhl_team_status(3, DNQ)      # New York Rangers
-update_nhl_team_status(4, ACTIVE)   # Philedelphia Flyers
+update_nhl_team_status(4, R2_ELIM)   # Philedelphia Flyers
 update_nhl_team_status(5, DNQ)      # Pittsburgh Penguins
 update_nhl_team_status(6, R2_ELIM)   # Boston Bruins
 update_nhl_team_status(7, DNQ)      # Buffalo Sabres
@@ -43,9 +43,9 @@ update_nhl_team_status(17, DNQ)     # Detroit Red Wings
 update_nhl_team_status(18, DNQ)     # Nashville Predators
 update_nhl_team_status(19, R1_ELIM)  # St Louis Blues
 update_nhl_team_status(20, R1_ELIM)  # Calgary Flames
-update_nhl_team_status(21, ACTIVE)  # Colorado Avalanche
+update_nhl_team_status(21, R2_ELIM)  # Colorado Avalanche
 update_nhl_team_status(22, DNQ)     # Edmonton Oilers
-update_nhl_team_status(23, ACTIVE)  # Vancouver Canucks
+update_nhl_team_status(23, R2_ELIM)  # Vancouver Canucks
 update_nhl_team_status(24, DNQ)     # Anaheim Ducks
 update_nhl_team_status(25, ACTIVE)  # Dallas Stars
 update_nhl_team_status(26, DNQ)     # Los Angeles Kings

@@ -19,5 +19,6 @@ from src.pool import *
 #update_all_pool_team_stats()
 #update_pool_points_table("_0821")
 #update_pool_rankings_table("_0821")
-update_pool_points_table()
-update_pool_rankings_table()
+#update_pool_points_table()
+#update_pool_rankings_table()
+update_points_change(2)

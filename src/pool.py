@@ -217,13 +217,12 @@ def update_points_change(*args):
         sql = "SELECT {md} FROM pool_points WHERE entry_id = {id}".format(md=monthday, id=team[0])
         cursor.execute(sql)
         prev_points = cursor.fetchone()
-        #print(curr_points)
-        #print(prev_points[0])
+        
         try:
             points_change = curr_points - int(prev_points[0])
         except:
             points_change = curr_points
-        #print(points_change)
+            
         sql = "UPDATE pool_stats SET points_change = {chg} WHERE entry_id = '{id}'".format(chg=points_change, id=team[0])
         cursor.execute(sql)
         db.commit()

@@ -17,7 +17,7 @@ sys.path.insert(0, parent_dir)
 from src.players import *
 from src.pool import *
 
-#set_prev_rank_to_curr_rank()
+set_prev_rank_to_curr_rank()
 #update_player_statuses()
 update_players_table(ACTIVE)
 #update_players_table(ALL)
