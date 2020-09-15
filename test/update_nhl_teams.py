@@ -54,4 +54,4 @@ update_nhl_team_status(29, R1_ELIM) # Columbus Blue Jackets
 update_nhl_team_status(30, DNQ)     # Minnesota Wild
 update_nhl_team_status(52, DNQ)     # Winnipeg Jets
 update_nhl_team_status(53, R1_ELIM) # Arizona Coyotes
-update_nhl_team_status(54, ACTIVE)  # Las Vegas Knights
+update_nhl_team_status(54, R3_ELIM)  # Las Vegas Knights
