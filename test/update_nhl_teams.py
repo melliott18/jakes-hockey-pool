@@ -25,7 +25,7 @@ from src.constants import *
 # Second parameter: status_id
 
 update_nhl_team_status(1, DNQ)      # New Jersey Devils
-update_nhl_team_status(2, ACTIVE)   # New York Islanders
+update_nhl_team_status(2, R3_ELIM)   # New York Islanders
 update_nhl_team_status(3, DNQ)      # New York Rangers
 update_nhl_team_status(4, R2_ELIM)   # Philedelphia Flyers
 update_nhl_team_status(5, DNQ)      # Pittsburgh Penguins
