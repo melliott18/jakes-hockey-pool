@@ -221,7 +221,7 @@ def update_points_change(*args):
         try:
             points_change = curr_points - int(prev_points[0])
         except:
-            points_change = curr_points
+            points_change = 0
             
         sql = "UPDATE pool_stats SET points_change = {chg} WHERE entry_id = '{id}'".format(chg=points_change, id=team[0])
         cursor.execute(sql)
